@@ -388,12 +388,14 @@ public:
 
     void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr &msg)
     {
+        ROS_WARN("AGUGU");
         if(msg->points.size() == 0 || controller_enable_flag_ == false)
         {
            // if the JointTrajectory is null or the robot is controlled by other controller, then do nothing.
         }
         else
         {
+            ROS_WARN("AGUGU");
             ROS_DEBUG("handle joint_path_command message");
             try
             {

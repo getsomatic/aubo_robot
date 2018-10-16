@@ -137,6 +137,7 @@ void JointTrajectoryAction::watchdog(const ros::TimerEvent &e)
 
 void JointTrajectoryAction::goalCB(JointTractoryActionServer::GoalHandle & gh)
 {
+    ROS_ERROR("AGUGU_goalCB");
   ROS_INFO("Received new goal");
 
   // reject all goals as long as we haven't heard from the remote controller
@@ -230,7 +231,7 @@ void JointTrajectoryAction::cancelCB(JointTractoryActionServer::GoalHandle & gh)
 
 void JointTrajectoryAction::controllerStateCB(const control_msgs::FollowJointTrajectoryFeedbackConstPtr &msg)
 {
-  ROS_DEBUG("Checking controller state feedback");
+  //ROS_DEBUG("Checking controller state feedback");
   last_trajectory_state_ = msg;
   controller_alive_ = true;
 
@@ -263,7 +264,7 @@ void JointTrajectoryAction::controllerStateCB(const control_msgs::FollowJointTra
   // Checking for goal constraints
   // Checks that we have ended inside the goal constraints and has motion stopped
 
-  ROS_DEBUG("Checking goal constraints");
+  //ROS_DEBUG("Checking goal constraints");
   if (withinGoalConstraints(last_trajectory_state_, current_traj_))
   {
     if (last_robot_status_)

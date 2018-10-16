@@ -167,7 +167,14 @@ class MotionControllerSimulator():
                 joint_point_msg.positions = self.joint_positions
                 joint_point_msg.velocities = self.joint_velocities
                 joint_point_msg.accelerations = self.joint_accelerations
-
+                print('sending: ' + str(time)
+                      + ' ' + str(self.joint_positions[0]) + ' ' + str(self.joint_positions[1]) + ' ' + str(self.joint_positions[2])
+                      + ' ' + str(self.joint_positions[3]) + ' ' + str(self.joint_positions[4]) + ' ' + str(self.joint_positions[5])
+                      + ' ' + str(self.joint_velocities[0]) + ' ' + str(self.joint_velocities[1]) + ' ' + str(self.joint_velocities[2])
+                      + ' ' + str(self.joint_velocities[3]) + ' ' + str(self.joint_velocities[4]) + ' ' + str(self.joint_velocities[5])
+                      + ' ' + str(self.joint_accelerations[0]) + ' ' + str(self.joint_accelerations[1]) + ' ' + str(self.joint_accelerations[2])
+                      + ' ' + str(self.joint_accelerations[3]) + ' ' + str(self.joint_accelerations[4]) + ' ' + str(self.joint_accelerations[5])
+                  )
                 # rospy.loginfo('Moved to position: %s', str(self.joint_positions))
                 self.moveit_joint_state_pub.publish(joint_point_msg)
 
@@ -179,6 +186,7 @@ class MotionControllerSimulator():
     """
     def _move_to(self, point, dur):
         while self.ribBufferSize > self.MinimumBufferSize:
+            print(self.ribBufferSize)
             rospy.loginfo('too fast!!')
             rospy.sleep(dur)
 
@@ -195,7 +203,7 @@ class MotionControllerSimulator():
                 self.joint_velocities = point.velocities
                 self.joint_accelerations = point.accelerations
                 # self.joint_state_publisher()                #publish the control command to the robot
-                # rospy.logdebug('Moved to position: %s in %s', str(self.joint_positions), str(dur))
+                rospy.logdebug('Moved to position: %s in %s', str(self.joint_positions), str(dur))
             else:
                 rospy.loginfo('Stopping motion immediately, clearing stop signal')
                 self.sig_stop = False
@@ -218,12 +226,16 @@ class MotionControllerSimulator():
 
         while not self.sig_shutdown:
             try:
+                #rospy.loginfo('processing queue --')
                 current_goal_point = self.motion_buffer.get()
                 intermediate_goal_point = copy.deepcopy(current_goal_point)
-
+                #if current_goal_point.time_from_start == last_goal_point.time_from_start:
+                #    print("SAME TIME")
+                #    continue
                 # If the current time from start is less than or equal to the last, then it's a new trajectory
-                if current_goal_point.time_from_start <= last_goal_point.time_from_start:
+                if current_goal_point.time_from_start < last_goal_point.time_from_start:
                     move_duration = current_goal_point.time_from_start
+                    print("NEW TRAJ DETECTED")
                 # Else it's an existing trajectory and subtract the two
                 else:
                     # If current move duration is greater than update_duration, interpolate the joint positions to form a smooth trajectory
@@ -262,14 +274,18 @@ class MotionControllerSimulator():
                                 intermediate_goal_point.velocities[i] = a1[i]+2*a2[i]*t1+3*a3[i]*t2+4*a4[i]*t3+5*a5[i]*t4
                                 intermediate_goal_point.accelerations[i] = 2*a2[i]+6*a3[i]*t1+12*a4[i]*t2+20*a5[i]*t3
                             tt = tt + update_duration.to_sec()
+                            #rospy.loginfo('move to 1:' + str(intermediate_goal_point))
                             self._move_to(intermediate_goal_point, update_duration.to_sec())
                             self.joint_state_publisher()
+                            rospy.sleep(update_duration.to_sec())
 
                         # here need to do some adjustment to make the trajectory smoother
                         move_duration = current_goal_point.time_from_start.to_sec() - tt
 
+                #rospy.loginfo('move to 2:' + str(current_goal_point))
                 self._move_to(current_goal_point, move_duration)
                 self.joint_state_publisher()
+                rospy.sleep(move_duration)
                 last_goal_point = copy.deepcopy(current_goal_point)
 
             except Exception as e:
@@ -454,7 +470,7 @@ class AuboRobotSimulatorNode():
                         # first remaps point to controller joint order, the add the point to the controller.
                         point = self._to_controller_order(msg_in.joint_names, point)
                         self.motion_ctrl.add_motion_waypoint(point)
-                        rospy.loginfo('Add new position: %s', str(point.positions))
+                        #rospy.loginfo('Add new position: %s', str(point.positions))
 
             except Exception as e:
                 rospy.logerr('Unexpected exception: %s', e)
