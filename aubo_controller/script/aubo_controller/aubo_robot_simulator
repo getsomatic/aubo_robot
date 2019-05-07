@@ -119,7 +119,7 @@ class MotionControllerSimulator():
     def update_joint_state_callback(self, msg_in):
         if not self.is_in_motion():
             self.joint_positions = msg_in.data
-            rospy.loginfo('update joints, %s' , str(self.joint_positions))
+            #rospy.loginfo('update joints, %s' , str(self.joint_positions))
 
     def add_motion_waypoint(self, point):
     # When add new trajectory into the buffer, here need to handle the accelerations!!
@@ -167,14 +167,14 @@ class MotionControllerSimulator():
                 joint_point_msg.positions = self.joint_positions
                 joint_point_msg.velocities = self.joint_velocities
                 joint_point_msg.accelerations = self.joint_accelerations
-                print('sending: ' + str(time)
-                      + ' ' + str(self.joint_positions[0]) + ' ' + str(self.joint_positions[1]) + ' ' + str(self.joint_positions[2])
-                      + ' ' + str(self.joint_positions[3]) + ' ' + str(self.joint_positions[4]) + ' ' + str(self.joint_positions[5])
-                      + ' ' + str(self.joint_velocities[0]) + ' ' + str(self.joint_velocities[1]) + ' ' + str(self.joint_velocities[2])
-                      + ' ' + str(self.joint_velocities[3]) + ' ' + str(self.joint_velocities[4]) + ' ' + str(self.joint_velocities[5])
-                      + ' ' + str(self.joint_accelerations[0]) + ' ' + str(self.joint_accelerations[1]) + ' ' + str(self.joint_accelerations[2])
-                      + ' ' + str(self.joint_accelerations[3]) + ' ' + str(self.joint_accelerations[4]) + ' ' + str(self.joint_accelerations[5])
-                  )
+                #print('sending: ' + str(time)
+                #      + ' ' + str(self.joint_positions[0]) + ' ' + str(self.joint_positions[1]) + ' ' + str(self.joint_positions[2])
+                #      + ' ' + str(self.joint_positions[3]) + ' ' + str(self.joint_positions[4]) + ' ' + str(self.joint_positions[5])
+                #      + ' ' + str(self.joint_velocities[0]) + ' ' + str(self.joint_velocities[1]) + ' ' + str(self.joint_velocities[2])
+                #      + ' ' + str(self.joint_velocities[3]) + ' ' + str(self.joint_velocities[4]) + ' ' + str(self.joint_velocities[5])
+                #      + ' ' + str(self.joint_accelerations[0]) + ' ' + str(self.joint_accelerations[1]) + ' ' + str(self.joint_accelerations[2])
+                #      + ' ' + str(self.joint_accelerations[3]) + ' ' + str(self.joint_accelerations[4]) + ' ' + str(self.joint_accelerations[5])
+                #  )
                 # rospy.loginfo('Moved to position: %s', str(self.joint_positions))
                 self.moveit_joint_state_pub.publish(joint_point_msg)
 
