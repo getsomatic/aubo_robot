@@ -227,7 +227,9 @@ class MotionControllerSimulator():
         while not self.sig_shutdown:
             try:
                 #rospy.loginfo('processing queue --')
+                print("getting item from queue")
                 current_goal_point = self.motion_buffer.get()
+                print("processing item. " + str(self.motion_buffer.qsize()))
                 intermediate_goal_point = copy.deepcopy(current_goal_point)
                 #if current_goal_point.time_from_start == last_goal_point.time_from_start:
                 #    print("SAME TIME")
