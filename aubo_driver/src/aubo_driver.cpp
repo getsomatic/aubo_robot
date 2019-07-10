@@ -69,6 +69,7 @@ AuboDriver::AuboDriver():buffer_size_(200),io_flag_delay_(0.02),data_recieved_(f
     io_pub_ = nh_.advertise<aubo_msgs::IOState>("/aubo_driver/io_states", 10);
     rib_pub_ = nh_.advertise<std_msgs::Int32MultiArray>("/aubo_driver/rib_status", 100);
     io_srv_ = nh_.advertiseService("/aubo_driver/set_io",&AuboDriver::setIO, this);
+    somatic_status_pub_ = nh_.advertise<somatic_msgs::ArmError>("somatic/robot_status", 100);
 
     /** subscribe topics **/
     trajectory_execution_subs_ = nh_.subscribe("trajectory_execution_event", 10, &AuboDriver::trajectoryExecutionCallback,this);
@@ -116,6 +117,28 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
                 robot_status_.in_motion.val       = (int)start_move_;
                 robot_status_.in_error.val        = (int)protective_stopped_;   //used for protective stop.
                 robot_status_.error_code          = (int32)rs.robot_diagnosis_info_.singularityOverSpeedAlarm;
+
+                //somatic
+                somatic_robot_status_.in_error = protective_stopped_;
+                somatic_robot_status_.e_stopped = (rs.robot_diagnosis_info_.softEmergency || emergency_stopped_);
+                somatic_robot_status_.error_codes.clear();
+                if (!rs.robot_diagnosis_info_.armPowerStatus) somatic_robot_status_.error_codes.push_back(1);
+                if (!rs.robot_diagnosis_info_.remoteHalt) somatic_robot_status_.error_codes.push_back(2);
+                if (rs.robot_diagnosis_info_.softEmergency) somatic_robot_status_.error_codes.push_back(3);
+                if (rs.robot_diagnosis_info_.remoteEmergency) somatic_robot_status_.error_codes.push_back(4);
+                if (rs.robot_diagnosis_info_.robotCollision) somatic_robot_status_.error_codes.push_back(5);
+                if (rs.robot_diagnosis_info_.forceControlMode) somatic_robot_status_.error_codes.push_back(6);
+                if (rs.robot_diagnosis_info_.brakeStuats) somatic_robot_status_.error_codes.push_back(7);
+                if (rs.robot_diagnosis_info_.orpeStatus) somatic_robot_status_.error_codes.push_back(8);
+                if (rs.robot_diagnosis_info_.enableReadPose) somatic_robot_status_.error_codes.push_back(9);
+                if (rs.robot_diagnosis_info_.robotMountingPoseChanged) somatic_robot_status_.error_codes.push_back(10);
+                if (rs.robot_diagnosis_info_.encoderErrorStatus) somatic_robot_status_.error_codes.push_back(11);
+                if (rs.robot_diagnosis_info_.staticCollisionDetect) somatic_robot_status_.error_codes.push_back(12);
+                if (rs.robot_diagnosis_info_.encoderLinesError) somatic_robot_status_.error_codes.push_back(13);
+                if (rs.robot_diagnosis_info_.jointErrorStatus) somatic_robot_status_.error_codes.push_back(14);
+                if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) somatic_robot_status_.error_codes.push_back(15);
+                if (rs.robot_diagnosis_info_.robotCurrentAlarm) somatic_robot_status_.error_codes.push_back(16);
+                if (rs.robot_diagnosis_info_.robotMountingPoseWarning) somatic_robot_status_.error_codes.push_back(17);
             }
         }
         else if(ret == aubo_robot_namespace::ErrCode_SocketDisconnect)
@@ -140,6 +163,11 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
     }
 
     robot_status_pub_.publish(robot_status_);
+
+    somatic_status_pub_.publish(somatic_robot_status_);
+
+
+
     rib_pub_.publish(rib_status_);
 
     if(control_mode_ == aubo_driver::SynchronizeWithRealRobot /*|| rs.robot_controller == ROBOT_CONTROLLER*/)

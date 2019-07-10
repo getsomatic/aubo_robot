@@ -46,6 +46,8 @@ double get_robot_one_io_status( our_contorl_io_type  io_type, our_contorl_io_mod
 #include "sensor_msgs/JointState.h"
 #include <control_msgs/FollowJointTrajectoryFeedback.h>
 
+#include <somatic_msgs/ArmError.h>
+
 #include "otg/otgnewslib.h"
 
 #define BufferQueueSize 2000
@@ -171,6 +173,7 @@ namespace aubo_driver
             ros::Publisher joint_feedback_pub_;
             ros::Publisher joint_target_pub_;
             ros::Publisher robot_status_pub_;
+            ros::Publisher somatic_status_pub_;
             ros::Subscriber teach_subs_;
             ros::Subscriber moveAPI_subs_;
             ros::Subscriber moveit_controller_subs_;
@@ -221,6 +224,7 @@ namespace aubo_driver
             int collision_class_;
             std_msgs::Int32MultiArray rib_status_;
             industrial_msgs::RobotStatus robot_status_;
+            somatic_msgs::ArmError somatic_robot_status_;
     };
 
     enum ControMode
