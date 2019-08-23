@@ -171,6 +171,7 @@ namespace aubo_driver
             ros::Publisher joint_feedback_pub_;
             ros::Publisher joint_target_pub_;
             ros::Publisher robot_status_pub_;
+            ros::Publisher somatic_error_pub_;
             ros::Subscriber teach_subs_;
             ros::Subscriber moveAPI_subs_;
             ros::Subscriber moveit_controller_subs_;

@@ -32,7 +32,7 @@
 #include "aubo_driver/aubo_driver.h"
 #include <string>
 #include <sys/timeb.h>
-
+#include <somatic_msgs/ArmError.h>
 namespace aubo_driver {
 
 std::string AuboDriver::joint_name_[ARM_DOF] = {"shoulder_joint","upperArm_joint","foreArm_joint","wrist1_joint","wrist2_joint","wrist3_joint"};
@@ -66,6 +66,7 @@ AuboDriver::AuboDriver():buffer_size_(200),io_flag_delay_(0.02),data_recieved_(f
     joint_feedback_pub_ = nh_.advertise<control_msgs::FollowJointTrajectoryFeedback>("feedback_states", 100);
     joint_target_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/aubo_driver/real_pose", 50);
     robot_status_pub_ = nh_.advertise<industrial_msgs::RobotStatus>("robot_status", 100);
+    somatic_error_pub_ = nh_.advertise<somatic_msgs::ArmError>("somatic/robot_cleaner/arm_error", 100);
     io_pub_ = nh_.advertise<aubo_msgs::IOState>("/aubo_driver/io_states", 10);
     rib_pub_ = nh_.advertise<std_msgs::Int32MultiArray>("/aubo_driver/rib_status", 100);
     io_srv_ = nh_.advertiseService("/aubo_driver/set_io",&AuboDriver::setIO, this);
@@ -138,6 +139,31 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
         /** maintain the ros-controller states from the ros environment **/
         setCurrentPosition(target_point_);
     }
+
+    somatic_msgs::ArmError armError;
+    armError.header = robot_status_.header;
+    armError.e_stopped = robot_status_.e_stopped.val;
+    armError.in_error = robot_status_.in_error.val;
+    if (rs.robot_diagnosis_info_.armPowerStatus) armError.error_codes.push_back(1);
+    if (rs.robot_diagnosis_info_.remoteHalt) armError.error_codes.push_back(2);
+    if (rs.robot_diagnosis_info_.softEmergency) armError.error_codes.push_back(3);
+    if (rs.robot_diagnosis_info_.remoteEmergency) armError.error_codes.push_back(4);
+    if (rs.robot_diagnosis_info_.robotCollision) armError.error_codes.push_back(5);
+    if (rs.robot_diagnosis_info_.forceControlMode) armError.error_codes.push_back(6);
+    if (rs.robot_diagnosis_info_.brakeStuats) armError.error_codes.push_back(7);
+    if (rs.robot_diagnosis_info_.orpeStatus) armError.error_codes.push_back(8);
+    if (rs.robot_diagnosis_info_.enableReadPose) armError.error_codes.push_back(9);
+    if (rs.robot_diagnosis_info_.robotMountingPoseChanged) armError.error_codes.push_back(10);
+    if (rs.robot_diagnosis_info_.encoderErrorStatus) armError.error_codes.push_back(11);
+    if (rs.robot_diagnosis_info_.staticCollisionDetect) armError.error_codes.push_back(12);
+    if (rs.robot_diagnosis_info_.encoderLinesError) armError.error_codes.push_back(13);
+    if (rs.robot_diagnosis_info_.jointErrorStatus) armError.error_codes.push_back(14);
+    if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) armError.error_codes.push_back(15);
+    if (rs.robot_diagnosis_info_.robotCurrentAlarm) armError.error_codes.push_back(16);
+    if (rs.robot_diagnosis_info_.robotMountingPoseWarning) armError.error_codes.push_back(17);
+    if (armError.error_codes.empty()) armError.error_codes.push_back(0);
+
+    somatic_error_pub_.publish(armError);
 
     robot_status_pub_.publish(robot_status_);
     rib_pub_.publish(rib_status_);
