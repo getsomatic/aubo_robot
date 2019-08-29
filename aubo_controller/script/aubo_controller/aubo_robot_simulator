@@ -227,9 +227,9 @@ class MotionControllerSimulator():
         while not self.sig_shutdown:
             try:
                 #rospy.loginfo('processing queue --')
-                print("getting item from queue")
+                rospy.loginfo("getting item from queue")
                 current_goal_point = self.motion_buffer.get()
-                print("processing item. " + str(self.motion_buffer.qsize()))
+                rospy.loginfo("processing item. " + str(self.motion_buffer.qsize()))
                 intermediate_goal_point = copy.deepcopy(current_goal_point)
                 #if current_goal_point.time_from_start == last_goal_point.time_from_start:
                 #    print("SAME TIME")
@@ -237,7 +237,7 @@ class MotionControllerSimulator():
                 # If the current time from start is less than or equal to the last, then it's a new trajectory
                 if current_goal_point.time_from_start < last_goal_point.time_from_start:
                     move_duration = current_goal_point.time_from_start
-                    print("NEW TRAJ DETECTED")
+                    rospy.loginfo("NEW TRAJ DETECTED")
                 # Else it's an existing trajectory and subtract the two
                 else:
                     # If current move duration is greater than update_duration, interpolate the joint positions to form a smooth trajectory
