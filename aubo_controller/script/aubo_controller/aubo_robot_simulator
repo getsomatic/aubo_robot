@@ -227,9 +227,9 @@ class MotionControllerSimulator():
         while not self.sig_shutdown:
             try:
                 #rospy.loginfo('processing queue --')
-                print("getting item from queue")
+                rospy.loginfo("getting item from queue")
                 current_goal_point = self.motion_buffer.get()
-                print("processing item. " + str(self.motion_buffer.qsize()))
+                rospy.loginfo("processing item. " + str(self.motion_buffer.qsize()))
                 intermediate_goal_point = copy.deepcopy(current_goal_point)
                 #if current_goal_point.time_from_start == last_goal_point.time_from_start:
                 #    print("SAME TIME")
@@ -237,7 +237,7 @@ class MotionControllerSimulator():
                 # If the current time from start is less than or equal to the last, then it's a new trajectory
                 if current_goal_point.time_from_start < last_goal_point.time_from_start:
                     move_duration = current_goal_point.time_from_start
-                    print("NEW TRAJ DETECTED")
+                    rospy.loginfo("NEW TRAJ DETECTED")
                 # Else it's an existing trajectory and subtract the two
                 else:
                     # If current move duration is greater than update_duration, interpolate the joint positions to form a smooth trajectory
@@ -455,24 +455,22 @@ class AuboRobotSimulatorNode():
             rospy.logdebug('handle joint_path_command')
             try:
                 rospy.loginfo('Received trajectory with %s points, executing callback', str(len(msg_in.points)))
+                #rospy.loginfo('Received trajectory %s ', str(msg_in.points))
 
                 if self.motion_ctrl.is_in_motion():
-                    if len(msg_in.points) > 0:
-                        rospy.logerr('Received trajectory while still in motion, trajectory splicing not supported')
-                    else:
-                        rospy.logdebug('Received empty trajectory while still in motion, stopping current trajectory')
-                    # maybe no need to stop the controller, just feedback the status of the controller to outside!!
-                    self.motion_ctrl.stop()
+                    rospy.logerr('Received trajectory while still in motion, clearing previous one')
+                    self.motion_ctrl._clear_buffer()
 
-                else:
-                    self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
-                    rospy.loginfo('The velocity scale factor is: %s', str(self.velocity_scale_factor))
-                    new_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
-                    for point in new_traj.points:
-                        # first remaps point to controller joint order, the add the point to the controller.
-                        point = self._to_controller_order(msg_in.joint_names, point)
-                        self.motion_ctrl.add_motion_waypoint(point)
-                        #rospy.loginfo('Add new position: %s', str(point.positions))
+                #else:
+
+                self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
+                rospy.loginfo('The velocity scale factor is: %s', str(self.velocity_scale_factor))
+                new_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
+                for point in new_traj.points:
+                    # first remaps point to controller joint order, the add the point to the controller.
+                    point = self._to_controller_order(msg_in.joint_names, point)
+                    self.motion_ctrl.add_motion_waypoint(point)
+                    #rospy.loginfo('Add new position: %s', str(point.positions))
 
             except Exception as e:
                 rospy.logerr('Unexpected exception: %s', e)
