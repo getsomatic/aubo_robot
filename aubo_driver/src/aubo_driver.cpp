@@ -144,8 +144,8 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
     armError.header = robot_status_.header;
     armError.e_stopped = robot_status_.e_stopped.val;
     armError.in_error = robot_status_.in_error.val;
-    if (rs.robot_diagnosis_info_.armPowerStatus) armError.error_codes.push_back(1);
-    if (rs.robot_diagnosis_info_.remoteHalt) armError.error_codes.push_back(2);
+    if (!rs.robot_diagnosis_info_.armPowerStatus) armError.error_codes.push_back(1);
+    if (!rs.robot_diagnosis_info_.remoteHalt) armError.error_codes.push_back(2);
     if (rs.robot_diagnosis_info_.softEmergency) armError.error_codes.push_back(3);
     if (rs.robot_diagnosis_info_.remoteEmergency) armError.error_codes.push_back(4);
     if (rs.robot_diagnosis_info_.robotCollision) armError.error_codes.push_back(5);
