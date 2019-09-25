@@ -38,6 +38,7 @@ from sensor_msgs.msg import JointState
 from control_msgs.msg import FollowJointTrajectoryFeedback
 from std_msgs.msg import Int32MultiArray
 from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import UInt8
 
 # Subscribe
 from trajectory_msgs.msg import JointTrajectory
@@ -64,10 +65,11 @@ class MotionControllerSimulator():
     def __init__(self, num_joints, update_rate = 200, buffer_size = 0):
         # Class lock
         self.lock = threading.Lock()
+        self.cancle_trajectory = 0;
 
         # Motion loop update rate (higher update rates result in smoother simulated motion)
         self.update_rate = update_rate
-        rospy.logdebug("Setting motion update rate (hz): %f", self.update_rate)
+        rospy.loginfo("Setting motion update rate (hz): %f", self.update_rate)
 
         # Initialize motion buffer (contains joint position lists)
         self.motion_buffer = Queue.Queue(buffer_size)
@@ -77,12 +79,14 @@ class MotionControllerSimulator():
         self.joint_names = rospy.get_param('controller_joint_names', def_joint_names)
 
         initial_joint_state = rospy.get_param('initial_joint_state', [0]*num_joints)
-        same_len = len(initial_joint_state) == len(self.joint_names)
-        all_num  = all(type(x) is int or type(x) is float for x in initial_joint_state)
-        if not same_len or not all_num:
-            initial_joint_state = [0]*num_joints
-            rospy.logwarn("Invalid initial_joint_state parameter, defaulting to all-zeros "
-                          "(len: %s, types: %s).", same_len, all_num)
+        # same_len = len(initial_joint_state) == len(self.joint_names)
+        # same_len = 6
+        initial_joint_state = [0]*num_joints
+        # all_num  = all(type(x) is int or type(x) is float for x in initial_joint_state)
+        # if not same_len or not all_num:
+        #     initial_joint_state = [0]*num_joints
+        #     rospy.logwarn("Invalid initial_joint_state parameter, defaulting to all-zeros "
+        #                   "(len: %s, types: %s).", same_len, all_num)
         rospy.loginfo("Using initial joint state: %s", str(initial_joint_state))
 
          # Initialize joint position
@@ -100,8 +104,9 @@ class MotionControllerSimulator():
 
         rospy.logdebug("Creating joint state subscriber!")
         self.update_joint_state_subs = rospy.Subscriber('/aubo_driver/real_pose', Float32MultiArray, self.update_joint_state_callback)
+        self.Is_cancel_trajectory_subs = rospy.Subscriber('aubo_driver/cancel_trajectory', UInt8, self.Is_cancel_trajectory_callback)
 
-        self.MinimumBufferSize = 250
+        self.MinimumBufferSize = 800
         # Shutdown signal
         self.sig_shutdown = False
 
@@ -120,6 +125,12 @@ class MotionControllerSimulator():
         if not self.is_in_motion():
             self.joint_positions = msg_in.data
             #rospy.loginfo('update joints, %s' , str(self.joint_positions))
+
+    # The function will recieve info about cancel trajectory because user want the robot stop when the robot running
+    def Is_cancel_trajectory_callback(self, msg_in):
+        self.cancle_trajectory = msg_in.data
+        rospy.loginfo('is cancel trajectory status %d' , self.cancle_trajectory)
+
 
     def add_motion_waypoint(self, point):
     # When add new trajectory into the buffer, here need to handle the accelerations!!
@@ -188,6 +199,7 @@ class MotionControllerSimulator():
         while self.ribBufferSize > self.MinimumBufferSize:
             print(self.ribBufferSize)
             rospy.loginfo('too fast!!')
+            rospy.loginfo('The number of driver Buffer Data is big enough, not send this time: %d', self.ribBufferSize)
             rospy.sleep(dur)
 
         if self.ribBufferSize == 0 and self.ControllerConnectedFlag == 0:      # motion start or no robot connected!
@@ -210,6 +222,7 @@ class MotionControllerSimulator():
 
     def _motion_worker(self):
         # first update the robot real postion
+
         self.positionUpdatedFlag = rospy.get_param('/aubo_driver/robot_connected', '0')
         while self.positionUpdatedFlag == '0':
             rospy.sleep( self.update_rate/400)
@@ -265,7 +278,7 @@ class MotionControllerSimulator():
                     if self.update_rate > 0:
                         tt = last_goal_point.time_from_start.to_sec()
                         ti = tt
-                        while tt < current_goal_point.time_from_start.to_sec():
+                        while ((tt < current_goal_point.time_from_start.to_sec()) and (0 == self.cancle_trajectory)):
                             t1 = tt - ti
                             t2 = t1 * t1
                             t3 = t2 * t1
@@ -293,7 +306,15 @@ class MotionControllerSimulator():
             except Exception as e:
                 rospy.logerr('Unexpected exception: %s', e)
 
+            # if user want stop ,we will clear Trajectory buffer data from moveit
+            if self.cancle_trajectory == 1:
+                self.cancle_trajectory = 0
+                while not self.motion_buffer.empty():
+                    self.motion_buffer.get()
+
         rospy.logdebug("Shutting down motion controller")
+
+
 
 """
 AuboRobotSimulator
@@ -430,10 +451,10 @@ class AuboRobotSimulatorNode():
     def rib_status_callback(self, data):
         try:
             if  data.data[1] == 1:
-                self.EnableFlag = 1
+#                self.EnableFlag = 1
                 rospy.logdebug('True True %d',  self.EnableFlag)
             else:
-                self.EnableFlag = 0
+#                self.EnableFlag = 0
                 rospy.logdebug('False False %d',  self.EnableFlag)
             self.motion_ctrl.ribBufferSize = data.data[0]
             self.motion_ctrl.ControllerConnectedFlag = data.data[2]
@@ -489,7 +510,6 @@ class AuboRobotSimulatorNode():
         pt_rtn.positions = self._remap_order(self.joint_names, keys, point.positions)
         pt_rtn.velocities = self._remap_order(self.joint_names, keys, point.velocities)
         pt_rtn.accelerations = self._remap_order(self.joint_names, keys, point.accelerations)
-
         return pt_rtn
 
     def _remap_order(self, ordered_keys, value_keys, values):
