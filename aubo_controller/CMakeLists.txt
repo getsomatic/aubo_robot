@@ -1,13 +1,27 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(aubo_controller)
 
-find_package(catkin REQUIRED COMPONENTS aubo_msgs  moveit_core moveit_ros_planning moveit_ros_planning_interface pluginlib cmake_modules)
+find_package(catkin REQUIRED COMPONENTS
+        aubo_msgs
+        moveit_core
+        moveit_ros_planning
+        moveit_ros_planning_interface
+        pluginlib
+        cmake_modules)
 
 find_package(Boost REQUIRED system filesystem date_time thread)
 
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs sensor_msgs
-  control_msgs trajectory_msgs actionlib_msgs actionlib
-  urdf industrial_msgs industrial_utils)
+find_package(catkin REQUIRED COMPONENTS
+        roscpp
+        std_msgs
+        sensor_msgs
+        control_msgs
+        trajectory_msgs
+        actionlib_msgs
+        actionlib
+        urdf
+        industrial_msgs
+        industrial_utils)
 
 #find_package(Eigen REQUIRED)
 
@@ -56,5 +70,6 @@ install(TARGETS aubo_joint_trajectory_action DESTINATION ${CATKIN_PACKAGE_BIN_DE
 #TARGET_LINK_LIBRARIES(aubo_simulator_controller industrial_robot_client ${catkin_LIBRARIES})
 #install(TARGETS aubo_simulator_controller DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-catkin_install_python(PROGRAMS script/aubo_controller/aubo_robot_simulator
+catkin_install_python(PROGRAMS
+        script/aubo_controller/aubo_robot_simulator
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

@@ -1,0 +1,296 @@
+#!/usr/bin/env python
+#
+# Software License Agreement (BSD License)
+# Copyright (c) 2017-2018, Aubo Robotics
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#  * Neither the name of the Southwest Research Institute, nor the names
+#    of its contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+from motion_controller_simulator import MotionControllerSimulator
+import rospy
+import copy
+import threading
+# Publish
+from sensor_msgs.msg import JointState
+from control_msgs.msg import FollowJointTrajectoryFeedback
+from std_msgs.msg import Int32MultiArray
+# Subscribe
+from trajectory_msgs.msg import JointTrajectory
+# Services
+from industrial_msgs.srv import GetRobotInfo, GetRobotInfoResponse
+# Reference
+from industrial_msgs.msg import TriState, RobotMode, ServiceReturnCode, DeviceInfo
+from trajectory_speed import scale_trajectory_speed
+
+"""
+AuboRobotSimulator
+
+This class simulates an Aubo robot controller.  The simulator
+adheres to the ROS-Industrial robot driver specification:
+
+http://www.ros.org/wiki/Industrial/Industrial_Robot_Driver_Spec
+
+TODO: Currently the simulator only supports the bare minimum motion interface.
+
+TODO: Interfaces to add:
+Joint streaming
+All services
+"""
+class AuboRobotSimulatorNode:
+    """
+    Constructor of aubo robot simulator
+    """
+    def __init__(self):
+        rospy.init_node('aubo_robot_simulator')
+
+        # Class lock
+        self.lock = threading.Lock()
+
+        # Publish rate (hz)
+        self.pub_rate = rospy.get_param('pub_rate', 50.0)
+        rospy.loginfo("Setting publish rate (hz) based on parameter: %f", self.pub_rate)
+
+        # Joint names
+        def_joint_names = ["joint_1", "joint_2", "joint_3", "joint_4", "joint_5", "joint_6"]
+        self.joint_names = rospy.get_param('controller_joint_names', def_joint_names)
+        if len(self.joint_names) == 0:
+            rospy.logwarn("Joint list is empty, did you set controller_joint_name?")
+        rospy.loginfo("Simulating manipulator with %d joints: %s", len(self.joint_names), ", ".join(self.joint_names))
+
+        # Setup initial joint positions
+        num_joints = len(self.joint_names)
+
+        # retrieve update rate
+        motion_update_rate = rospy.get_param('motion_update_rate', 200.)  # set param to 0 to ignore interpolated motion
+        self.motion_ctrl = MotionControllerSimulator(num_joints, update_rate=motion_update_rate)
+
+        self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
+        rospy.loginfo("The velocity scale factor of the trajetory is: %f", self.velocity_scale_factor)
+
+        # Published to joint states
+        rospy.logdebug("Creating joint state publisher")
+        self.joint_state_pub = rospy.Publisher('joint_states', JointState, queue_size=100)
+
+        # Published to joint feedback
+        rospy.logdebug("Creating joint feedback publisher")
+        self.joint_feedback_pub = rospy.Publisher('feedback_states', FollowJointTrajectoryFeedback, queue_size=100)
+
+        # Subscribe to a joint trajectory
+        rospy.loginfo("Creating joint trajectory subscriber")
+        self.joint_path_sub = rospy.Subscriber('joint_path_command', JointTrajectory, self.trajectory_callback)
+
+        # Subscribe to a joint trajectory
+        rospy.loginfo("Enable Switch")
+        self.plan_type_sub = rospy.Subscriber('/aubo_driver/rib_status', Int32MultiArray, self.rib_status_callback)
+
+        # JointStates timed task (started automatically)
+        # period = rospy.Duration(1.0/self.pub_rate)
+        # rospy.logdebug('Setting up publish worker with period (sec): %s', str(period.to_sec()))
+        # rospy.Timer(period, self.publish_worker)
+
+        self.EnableFlag = 1
+
+        # GetRobotInfo service server and pre-cooked svc response
+        self.get_robot_info_response = self._init_robot_info_response()
+        self.svc_get_robot_info = rospy.Service('get_robot_info', GetRobotInfo, self.cb_svc_get_robot_info)
+
+        rospy.loginfo("Clean up init")
+        rospy.on_shutdown(self.motion_ctrl.shutdown)
+
+    """
+    Service callback for GetRobotInfo() service. Returns fake information.
+    """
+    def cb_svc_get_robot_info(self, req):
+        # return cached response instance
+        return self.get_robot_info_response
+
+    """
+    The publish worker is executed at a fixed rate.  This publishes the various
+    state and status information to the action controller.
+    """
+    def publish_worker(self, event):
+        pass
+        # self.joint_state_publisher()
+        # self.robot_status_publisher()         # robot_status message is published by aubo_driver
+
+    """
+    The joint state publisher publishes the current joint state and the current
+    feedback state (as these are closely related)
+    """
+    def joint_state_publisher(self):
+        if self.EnableFlag == 1 and self.motion_ctrl.positionUpdatedFlag == '1':
+            try:
+                joint_state_msg = JointState()
+                joint_fb_msg = FollowJointTrajectoryFeedback()
+                time = rospy.Time.now()
+
+                with self.lock:
+                    #Joint states
+                    joint_state_msg.header.stamp = time
+                    joint_state_msg.name = self.joint_names
+                    joint_state_msg.position = self.motion_ctrl.get_joint_positions()
+                    # self.joint_state_pub.publish(joint_state_msg)
+
+                    #Joint feedback
+                    joint_fb_msg.header.stamp = time
+                    joint_fb_msg.joint_names = self.joint_names
+                    joint_fb_msg.actual.positions = self.motion_ctrl.get_joint_positions()
+
+                    # self.joint_feedback_pub.publish(joint_fb_msg)
+
+            except Exception as e:
+                rospy.loginfo('Unexpected exception in joint state publisher: %s', e)
+
+    """
+    The robot status publisher publishes the current simulated robot status.
+
+    The following values are hard coded:
+     - robot always in AUTO mode
+     - drives always powered
+     - motion always possible
+     - robot never E-stopped
+     - no error code
+     - robot never in error
+
+    The value of 'in_motion' is derived from the state of the MotionControllerSimulator.
+    """
+    def rib_status_callback(self, data):
+        try:
+            if  data.data[1] == 1:
+                #                self.EnableFlag = 1
+                rospy.logdebug('True True %d',  self.EnableFlag)
+            else:
+                #                self.EnableFlag = 0
+                rospy.logdebug('False False %d',  self.EnableFlag)
+            self.motion_ctrl.ribBufferSize = data.data[0]
+            self.motion_ctrl.ControllerConnectedFlag = data.data[2]
+            # rospy.loginfo('mode %d', data.data[1])
+
+        except Exception as e:
+            rospy.logerr('Unexpected exception: %s', e)
+
+    """
+    Trajectory subscription callback (gets called whenever a "joint_path_command" message is received).
+    @param msg_in: joint trajectory message
+    @type  msg_in: JointTrajectory
+    """
+    def trajectory_callback(self, msg_in):
+        if (len(msg_in.points) == 0) or (self.EnableFlag == 0):
+            # if the JointTrajectory is null or the robot is controlled by other controller.
+            pass
+        else:
+            rospy.logdebug('handle joint_path_command')
+            try:
+                rospy.loginfo('Received trajectory with %s points, executing callback', str(len(msg_in.points)))
+                #rospy.loginfo('Received trajectory %s ', str(msg_in.points))
+
+                if self.motion_ctrl.is_in_motion():
+                    rospy.logerr('Received trajectory while still in motion, clearing previous one')
+                    self.motion_ctrl._clear_buffer()
+
+                #else:
+
+                self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
+                rospy.loginfo('The velocity scale factor is: %s', str(self.velocity_scale_factor))
+                new_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
+                for point in new_traj.points:
+                    # first remaps point to controller joint order, the add the point to the controller.
+                    point = self._to_controller_order(msg_in.joint_names, point)
+                    self.motion_ctrl.add_motion_waypoint(point)
+                    #rospy.loginfo('Add new position: %s', str(point.positions))
+
+            except Exception as e:
+                rospy.logerr('Unexpected exception: %s', e)
+
+            rospy.logdebug('Exiting trajectory callback')
+
+    """
+    Remaps point to controller joint order
+
+    @param point:  joint trajectory point
+    @type  point:  JointTrajectoryPoint
+    @return point: reorder point
+    """
+    def _to_controller_order(self, keys, point):
+        pt_rtn = copy.deepcopy(point)
+        pt_rtn.positions = self._remap_order(self.joint_names, keys, point.positions)
+        pt_rtn.velocities = self._remap_order(self.joint_names, keys, point.velocities)
+        pt_rtn.accelerations = self._remap_order(self.joint_names, keys, point.accelerations)
+        return pt_rtn
+
+    def _remap_order(self, ordered_keys, value_keys, values):
+        #rospy.loginfo('remap order, ordered_keys: %s, value_keys: %s, values: %s', str(ordered_keys), str(value_keys), str(values))
+        ordered_values = []
+
+        ordered_values = [0]*len(ordered_keys)
+        mapping = dict(zip(value_keys, values))
+        #rospy.loginfo('maping: %s', str(mapping))
+
+        for i in range(len(ordered_keys)):
+            ordered_values[i] = mapping[ordered_keys[i]]
+            pass
+
+        return ordered_values
+
+    """
+    Constructs a GetRobotInfoResponse instance with either default data.
+    """
+    def _init_robot_info_response(self):
+        if not rospy.has_param('~robot_info'):
+            # if user did not provide data, we generate some
+            import rospkg
+            rp = rospkg.RosPack()
+            irs_version = rp.get_manifest('industrial_robot_simulator').version
+            robot_info = dict(
+                controller=dict(
+                    model='Aubo Robot Simulator Controller',
+                    serial_number='0123456789',
+                    sw_version=irs_version),
+                robots=[
+                    dict(
+                        model='Aubo Robot Simulator Manipulator',
+                        serial_number='9876543210',
+                        sw_version=irs_version)
+                ])
+        else:
+            # otherwise use only the data user has provided (and nothing more)
+            robot_info = rospy.get_param('~robot_info')
+
+        resp = GetRobotInfoResponse()
+        resp.controller = DeviceInfo(**robot_info['controller'])
+
+        # add info on controlled robot / motion group
+        if len(robot_info['robots']) > 0:
+            robot = robot_info['robots'][0]
+            resp.robots.append(DeviceInfo(**robot))
+
+        if len(robot_info['robots']) > 1:
+            # simulator simulates a single robot / motion group
+            rospy.logwarn("Multiple robots / motion groups defined in "
+                          "'robot_info' parameter, ignoring all but first element")
+
+        # always successfull
+        resp.code.val = ServiceReturnCode.SUCCESS
+        return resp
