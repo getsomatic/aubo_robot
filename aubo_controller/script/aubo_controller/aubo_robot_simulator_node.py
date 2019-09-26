@@ -58,14 +58,17 @@ TODO: Interfaces to add:
 Joint streaming
 All services
 """
+
+
 class AuboRobotSimulatorNode:
     """
     Constructor of aubo robot simulator
     """
+
     def __init__(self):
         rospy.init_node('aubo_robot_simulator')
 
-        # Class lock
+        # Class lock for only 1 thread to use it at same time
         self.lock = threading.Lock()
 
         # Publish rate (hz)
@@ -87,7 +90,7 @@ class AuboRobotSimulatorNode:
         self.motion_ctrl = MotionControllerSimulator(num_joints, update_rate=motion_update_rate)
 
         self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
-        rospy.loginfo("The velocity scale factor of the trajetory is: %f", self.velocity_scale_factor)
+        rospy.loginfo("The velocity scale factor of the trajectory is: %f", self.velocity_scale_factor)
 
         # Published to joint states
         rospy.logdebug("Creating joint state publisher")
@@ -122,6 +125,7 @@ class AuboRobotSimulatorNode:
     """
     Service callback for GetRobotInfo() service. Returns fake information.
     """
+
     def cb_svc_get_robot_info(self, req):
         # return cached response instance
         return self.get_robot_info_response
@@ -130,6 +134,7 @@ class AuboRobotSimulatorNode:
     The publish worker is executed at a fixed rate.  This publishes the various
     state and status information to the action controller.
     """
+
     def publish_worker(self, event):
         pass
         # self.joint_state_publisher()
@@ -139,6 +144,7 @@ class AuboRobotSimulatorNode:
     The joint state publisher publishes the current joint state and the current
     feedback state (as these are closely related)
     """
+
     def joint_state_publisher(self):
         if self.EnableFlag == 1 and self.motion_ctrl.positionUpdatedFlag == '1':
             try:
@@ -147,13 +153,13 @@ class AuboRobotSimulatorNode:
                 time = rospy.Time.now()
 
                 with self.lock:
-                    #Joint states
+                    # Joint states
                     joint_state_msg.header.stamp = time
                     joint_state_msg.name = self.joint_names
                     joint_state_msg.position = self.motion_ctrl.get_joint_positions()
                     # self.joint_state_pub.publish(joint_state_msg)
 
-                    #Joint feedback
+                    # Joint feedback
                     joint_fb_msg.header.stamp = time
                     joint_fb_msg.joint_names = self.joint_names
                     joint_fb_msg.actual.positions = self.motion_ctrl.get_joint_positions()
@@ -176,14 +182,15 @@ class AuboRobotSimulatorNode:
 
     The value of 'in_motion' is derived from the state of the MotionControllerSimulator.
     """
+
     def rib_status_callback(self, data):
         try:
-            if  data.data[1] == 1:
+            if data.data[1] == 1:
                 #                self.EnableFlag = 1
-                rospy.logdebug('True True %d',  self.EnableFlag)
+                rospy.logdebug('True True %d', self.EnableFlag)
             else:
                 #                self.EnableFlag = 0
-                rospy.logdebug('False False %d',  self.EnableFlag)
+                rospy.logdebug('False False %d', self.EnableFlag)
             self.motion_ctrl.ribBufferSize = data.data[0]
             self.motion_ctrl.ControllerConnectedFlag = data.data[2]
             # rospy.loginfo('mode %d', data.data[1])
@@ -196,6 +203,7 @@ class AuboRobotSimulatorNode:
     @param msg_in: joint trajectory message
     @type  msg_in: JointTrajectory
     """
+
     def trajectory_callback(self, msg_in):
         if (len(msg_in.points) == 0) or (self.EnableFlag == 0):
             # if the JointTrajectory is null or the robot is controlled by other controller.
@@ -204,25 +212,26 @@ class AuboRobotSimulatorNode:
             rospy.logdebug('handle joint_path_command')
             try:
                 rospy.loginfo('Received trajectory with %s points, executing callback', str(len(msg_in.points)))
-                #rospy.loginfo('Received trajectory %s ', str(msg_in.points))
+                # rospy.loginfo('Received trajectory %s ', str(msg_in.points))
 
                 if self.motion_ctrl.is_in_motion():
                     rospy.logerr('Received trajectory while still in motion, clearing previous one')
                     self.motion_ctrl._clear_buffer()
 
-                #else:
+                # else:
 
                 self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
                 rospy.loginfo('The velocity scale factor is: %s', str(self.velocity_scale_factor))
                 new_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
+
                 for point in new_traj.points:
                     # first remaps point to controller joint order, the add the point to the controller.
                     point = self._to_controller_order(msg_in.joint_names, point)
                     self.motion_ctrl.add_motion_waypoint(point)
-                    #rospy.loginfo('Add new position: %s', str(point.positions))
+                    # rospy.loginfo('Add new position: %s', str(point.positions))
 
             except Exception as e:
-                rospy.logerr('Unexpected exception: %s', e)
+                rospy.logerr('Unexpected exception (after receiving trajectory): %s', e)
 
             rospy.logdebug('Exiting trajectory callback')
 
@@ -233,6 +242,7 @@ class AuboRobotSimulatorNode:
     @type  point:  JointTrajectoryPoint
     @return point: reorder point
     """
+
     def _to_controller_order(self, keys, point):
         pt_rtn = copy.deepcopy(point)
         pt_rtn.positions = self._remap_order(self.joint_names, keys, point.positions)
@@ -241,12 +251,12 @@ class AuboRobotSimulatorNode:
         return pt_rtn
 
     def _remap_order(self, ordered_keys, value_keys, values):
-        #rospy.loginfo('remap order, ordered_keys: %s, value_keys: %s, values: %s', str(ordered_keys), str(value_keys), str(values))
+        # rospy.loginfo('remap order, ordered_keys: %s, value_keys: %s, values: %s', str(ordered_keys), str(value_keys), str(values))
         ordered_values = []
 
-        ordered_values = [0]*len(ordered_keys)
+        ordered_values = [0] * len(ordered_keys)
         mapping = dict(zip(value_keys, values))
-        #rospy.loginfo('maping: %s', str(mapping))
+        # rospy.loginfo('maping: %s', str(mapping))
 
         for i in range(len(ordered_keys)):
             ordered_values[i] = mapping[ordered_keys[i]]
@@ -257,6 +267,7 @@ class AuboRobotSimulatorNode:
     """
     Constructs a GetRobotInfoResponse instance with either default data.
     """
+
     def _init_robot_info_response(self):
         if not rospy.has_param('~robot_info'):
             # if user did not provide data, we generate some

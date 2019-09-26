@@ -2,31 +2,30 @@ cmake_minimum_required(VERSION 2.8.3)
 project(aubo_controller)
 
 find_package(catkin REQUIRED COMPONENTS
-        aubo_msgs
-        moveit_core
-        moveit_ros_planning
-        moveit_ros_planning_interface
-        pluginlib
-        cmake_modules)
+    aubo_msgs
+    moveit_core
+    moveit_ros_planning
+    moveit_ros_planning_interface
+    pluginlib
+    cmake_modules)
 
 find_package(Boost REQUIRED system filesystem date_time thread)
 
 find_package(catkin REQUIRED COMPONENTS
-        roscpp
-        std_msgs
-        sensor_msgs
-        control_msgs
-        trajectory_msgs
-        actionlib_msgs
-        actionlib
-        urdf
-        industrial_msgs
-        industrial_utils)
+    roscpp
+    std_msgs
+    sensor_msgs
+    control_msgs
+    trajectory_msgs
+    actionlib_msgs
+    actionlib
+    urdf
+    industrial_msgs
+    industrial_utils)
 
 #find_package(Eigen REQUIRED)
 
-catkin_package(
-  CATKIN_DEPENDS
+catkin_package(CATKIN_DEPENDS
     roscpp
     std_msgs
     sensor_msgs
