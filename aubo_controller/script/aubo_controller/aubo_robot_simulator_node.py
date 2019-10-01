@@ -43,6 +43,7 @@ from industrial_msgs.srv import GetRobotInfo, GetRobotInfoResponse
 # Reference
 from industrial_msgs.msg import TriState, RobotMode, ServiceReturnCode, DeviceInfo
 from trajectory_speed import scale_trajectory_speed
+import Queue
 
 """
 AuboRobotSimulator
@@ -67,6 +68,8 @@ class AuboRobotSimulatorNode:
 
     def __init__(self):
         rospy.init_node('aubo_robot_simulator')
+
+        self.traj_list = []
 
         # Class lock for only 1 thread to use it at same time
         self.lock = threading.Lock()
@@ -102,7 +105,7 @@ class AuboRobotSimulatorNode:
 
         # Subscribe to a joint trajectory
         rospy.loginfo("Creating joint trajectory subscriber")
-        self.joint_path_sub = rospy.Subscriber('joint_path_command', JointTrajectory, self.trajectory_callback)
+        self.joint_path_sub = rospy.Subscriber('joint_path_command', JointTrajectory, self.trajectory_received)
 
         # Subscribe to a joint trajectory
         rospy.loginfo("Enable Switch")
@@ -121,6 +124,10 @@ class AuboRobotSimulatorNode:
 
         rospy.loginfo("Clean up init")
         rospy.on_shutdown(self.motion_ctrl.shutdown)
+
+        self.exec_thread = threading.Thread(target=self.execute_loop())
+        self.exec_thread.daemon = True
+        self.exec_thread.start()
 
     """
     Service callback for GetRobotInfo() service. Returns fake information.
@@ -204,36 +211,66 @@ class AuboRobotSimulatorNode:
     @type  msg_in: JointTrajectory
     """
 
-    def trajectory_callback(self, msg_in):
-        if (len(msg_in.points) == 0) or (self.EnableFlag == 0):
-            # if the JointTrajectory is null or the robot is controlled by other controller.
-            pass
-        else:
-            rospy.logdebug('handle joint_path_command')
+    def trajectory_received(self, trj):
+        self.traj_list.append(trj)
+
+    def execute_loop(self):
+        while not self.motion_ctrl.sig_shutdown:
             try:
-                rospy.loginfo('Received trajectory with %s points, executing callback', str(len(msg_in.points)))
-                # rospy.loginfo('Received trajectory %s ', str(msg_in.points))
-
-                if self.motion_ctrl.is_in_motion():
-                    rospy.logerr('Received trajectory while still in motion, clearing previous one')
-                    self.motion_ctrl._clear_buffer()
-
-                # else:
+                if self.motion_ctrl.is_in_motion() or self.EnableFlag == 0 or len(self.traj_list) == 0:
+                    rospy.loginfo('[aubo_robot_simulator_node/execute_loop] In motion, continue...')
+                    continue
 
                 self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
-                rospy.loginfo('The velocity scale factor is: %s', str(self.velocity_scale_factor))
-                new_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
-
-                for point in new_traj.points:
+                rospy.loginfo('[aubo_robot_simulator_node/execute_loop] The velocity scale factor is: %s', str(self.velocity_scale_factor))
+                curr_traj = scale_trajectory_speed(self.traj_list.pop(0), self.velocity_scale_factor)
+                for point in curr_traj.points:
                     # first remaps point to controller joint order, the add the point to the controller.
-                    point = self._to_controller_order(msg_in.joint_names, point)
+                    point = self._to_controller_order(curr_traj.joint_names, point)
                     self.motion_ctrl.add_motion_waypoint(point)
-                    # rospy.loginfo('Add new position: %s', str(point.positions))
 
             except Exception as e:
-                rospy.logerr('Unexpected exception (after receiving trajectory): %s', e)
+                rospy.logerr('[aubo_robot_simulator_node/execute_loop] Exception: %s', e)
 
-            rospy.logdebug('Exiting trajectory callback')
+        rospy.logerr('[aubo_robot_simulator_node/execute_loop] Exiting e-loop (sig_shutdown)')
+
+    def execute(self):
+        while not self.motion_ctrl.sig_shutdown:
+            if self.motion_ctrl.in_motion:
+                continue
+
+            msg_in = self.traj_list.pop(0)
+
+
+            if (len(msg_in.points) == 0) or (self.EnableFlag == 0):
+                # if the JointTrajectory is null or the robot is controlled by other controller.
+                pass
+            else:
+                rospy.logdebug('handle joint_path_command')
+                try:
+                    rospy.loginfo('Received trajectory with %s points, executing callback', str(len(msg_in.points)))
+                    # rospy.loginfo('Received trajectory %s ', str(msg_in.points))
+
+                    if self.motion_ctrl.is_in_motion():
+                        rospy.logerr('Received trajectory while still in motion, clearing previous one')
+                        self.motion_ctrl._clear_buffer()
+
+                    # else:
+
+                    self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
+                    rospy.loginfo('The velocity scale factor is: %s', str(self.velocity_scale_factor))
+                    new_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
+
+                    for point in new_traj.points:
+                        # first remaps point to controller joint order, the add the point to the controller.
+                        point = self._to_controller_order(msg_in.joint_names, point)
+                        self.motion_ctrl.add_motion_waypoint(point)
+                        # rospy.loginfo('Add new position: %s', str(point.positions))
+
+                except Exception as e:
+                    rospy.logerr('Unexpected exception (after receiving trajectory): %s', e)
+
+                rospy.logdebug('Exiting trajectory callback')
 
     """
     Remaps point to controller joint order
