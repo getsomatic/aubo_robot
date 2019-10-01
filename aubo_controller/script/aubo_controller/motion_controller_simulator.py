@@ -248,7 +248,7 @@ class MotionControllerSimulator:
                 # If the current time from start is less than or equal to the last, then it's a new trajectory
                 if current_goal_point.time_from_start < last_goal_point.time_from_start:
                     move_duration = current_goal_point.time_from_start
-                    rospy.loginfo("NEW TRAJECTORY DETECTED!")
+                    rospy.loginfo("NEW TRAJECTORY DETECTED!\n")
                 # Else it's an existing trajectory and subtract the two
                 else:
                     # If current move duration is greater than update_duration, interpolate the joint positions to form a smooth trajectory

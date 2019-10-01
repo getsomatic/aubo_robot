@@ -68,7 +68,7 @@ class AuboRobotSimulatorNode:
 
     def __init__(self):
         rospy.init_node('aubo_robot_simulator')
-
+        self.pointX = 0
         self.traj_list = []
 
         # Class lock for only 1 thread to use it at same time
@@ -125,7 +125,7 @@ class AuboRobotSimulatorNode:
         rospy.loginfo("Clean up init")
         rospy.on_shutdown(self.motion_ctrl.shutdown)
 
-        self.exec_thread = threading.Thread(target=self.execute_loop())
+        self.exec_thread = threading.Thread(target=self.exec_loop())
         self.exec_thread.daemon = True
         self.exec_thread.start()
 
@@ -212,65 +212,60 @@ class AuboRobotSimulatorNode:
     """
 
     def trajectory_received(self, trj):
-        self.traj_list.append(trj)
+        if len(trj.points) != 0:
+            self.traj_list.append(trj)
 
-    def execute_loop(self):
+    def exec_loop(self):
+        rospy.logerr('[aubo_robot_simulator_node/exec_loop] Started!')
+
         while not self.motion_ctrl.sig_shutdown:
             try:
                 if self.motion_ctrl.is_in_motion() or self.EnableFlag == 0 or len(self.traj_list) == 0:
-                    rospy.loginfo('[aubo_robot_simulator_node/execute_loop] In motion, continue...')
+                    if self.motion_ctrl.is_in_motion():
+                        pass
+                        # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] In motion, continue...')
+
+                    if self.EnableFlag == 0:
+                        rospy.loginfo('[aubo_robot_simulator_node/exec_loop] self.EnableFlag == 0, continue...')
+
+                    if len(self.traj_list) == 0:
+                        pass
+                        # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] len(self.traj_list) == 0, continue...')
                     continue
 
-                self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
-                rospy.loginfo('[aubo_robot_simulator_node/execute_loop] The velocity scale factor is: %s', str(self.velocity_scale_factor))
-                curr_traj = scale_trajectory_speed(self.traj_list.pop(0), self.velocity_scale_factor)
-                for point in curr_traj.points:
-                    # first remaps point to controller joint order, the add the point to the controller.
-                    point = self._to_controller_order(curr_traj.joint_names, point)
-                    self.motion_ctrl.add_motion_waypoint(point)
+                rospy.logerr('[aubo_robot_simulator_node/exec_loop] Executing...')
+                msg_in = self.traj_list.pop(0)
+                rospy.logerr('[aubo_robot_simulator_node/exec_loop] msg_in.len=%d', len(msg_in.points))
 
-            except Exception as e:
-                rospy.logerr('[aubo_robot_simulator_node/execute_loop] Exception: %s', e)
-
-        rospy.logerr('[aubo_robot_simulator_node/execute_loop] Exiting e-loop (sig_shutdown)')
-
-    def execute(self):
-        while not self.motion_ctrl.sig_shutdown:
-            if self.motion_ctrl.in_motion:
-                continue
-
-            msg_in = self.traj_list.pop(0)
-
-
-            if (len(msg_in.points) == 0) or (self.EnableFlag == 0):
-                # if the JointTrajectory is null or the robot is controlled by other controller.
-                pass
-            else:
-                rospy.logdebug('handle joint_path_command')
-                try:
-                    rospy.loginfo('Received trajectory with %s points, executing callback', str(len(msg_in.points)))
-                    # rospy.loginfo('Received trajectory %s ', str(msg_in.points))
-
-                    if self.motion_ctrl.is_in_motion():
-                        rospy.logerr('Received trajectory while still in motion, clearing previous one')
-                        self.motion_ctrl._clear_buffer()
-
-                    # else:
-
+                if len(msg_in.points) != 0:
                     self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
-                    rospy.loginfo('The velocity scale factor is: %s', str(self.velocity_scale_factor))
-                    new_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
+                    # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] The velocity scale factor is: %s', str(self.velocity_scale_factor))
+                    curr_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
 
-                    for point in new_traj.points:
+                    for point in curr_traj.points:
                         # first remaps point to controller joint order, the add the point to the controller.
                         point = self._to_controller_order(msg_in.joint_names, point)
                         self.motion_ctrl.add_motion_waypoint(point)
-                        # rospy.loginfo('Add new position: %s', str(point.positions))
+                        self.pointX = point
+                        rospy.logerr("pos [%f, %f, %f, %f, %f, %f]", point.positions[0], point.positions[1], point.positions[2],
+                                     point.positions[3], point.positions[4], point.positions[5])
+                        rospy.logerr("acc [%f, %f, %f, %f, %f, %f]", point.accelerations[0], point.accelerations[1], point.accelerations[2],
+                                     point.accelerations[3], point.accelerations[4], point.accelerations[5])
+                        rospy.logerr("vel [%f, %f, %f, %f, %f, %f]\n", point.velocities[0], point.velocities[1], point.velocities[2],
+                                     point.velocities[3], point.velocities[4], point.velocities[5])
 
-                except Exception as e:
-                    rospy.logerr('Unexpected exception (after receiving trajectory): %s', e)
+                    self.pointX.velocities = [0] * 6
+                    self.pointX.accelerations = [0] * 6
+                    self.motion_ctrl.add_motion_waypoint(self.pointX)
 
-                rospy.logdebug('Exiting trajectory callback')
+                else:
+                    rospy.logerr('[aubo_robot_simulator_node/exec_loop] len(msg_in.points) == 0')
+
+            except Exception as e:
+                rospy.logerr('[aubo_robot_simulator_node/exec_loop] Exception: %s', e)
+
+        rospy.logerr('[aubo_robot_simulator_node/exec_loop] Exiting (sig_shutdown)')
+
 
     """
     Remaps point to controller joint order
