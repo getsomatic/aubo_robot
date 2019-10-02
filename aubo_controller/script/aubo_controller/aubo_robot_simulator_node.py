@@ -214,33 +214,58 @@ class AuboRobotSimulatorNode:
 
     # Smoothing 2 trajectories to remove speed fall
     def smooth_trajectory_transition(self, trj1, trj2):
+        test = JointTrajectoryPoint()
+        # test.accelerations
+        # test.velocities
         trj1, trj2 = self.smooth_vel(trj1, trj2)
         trj1, trj2 = self.smooth_acc(trj1, trj2)
         return trj1, trj2
 
     # Smoothing velocities
     def smooth_vel(self, trj1, trj2):
-
-        return trj1, trj2
-
-    # Smoothing accelerations
-    def smooth_acc(self, trj1, trj2):
-
+        for i in range(6):
+            v1 = self.get_vel_for_joint(trj1, i)
+            v2 = self.get_vel_for_joint(trj2, i)
+            v1, v2 = self.median_smooth_arrays(v1, v2)
+            trj1 = self.set_vel_for_joint(trj1, v1, i)
+            trj2 = self.set_vel_for_joint(trj2, v2, i)
         return trj1, trj2
 
     # getting values for each joint
-    def get_for_joint(self, arr, num):
+    def get_vel_for_joint(self, trj, num):
         res = []
-        for v in arr:
-            res.append(v[num])
+        for p in trj.points:
+            res.append(p.velocities[num])
         return res
 
     # assigning values back to joints
-    def set_for_joint(self, arr, num):
+    def set_vel_for_joint(self, trj, arr, num):
+        for i in range(len(trj.points)):
+            trj.points[i].velocities[num] = arr[i]
+        return trj
+
+    # Smoothing accelerations
+    def smooth_acc(self, trj1, trj2):
+        for i in range(6):
+            a1 = self.get_acc_for_joint(trj1, i)
+            a2 = self.get_acc_for_joint(trj2, i)
+            a1, a2 = self.median_smooth_arrays(a1, a2)
+            trj1 = self.set_acc_for_joint(trj1, a1, i)
+            trj2 = self.set_acc_for_joint(trj2, a2, i)
+        return trj1, trj2
+
+    # getting values for each joint
+    def get_acc_for_joint(self, trj, num):
         res = []
-        for v in arr:
-            res.append(v[num])
+        for p in trj.points:
+            res.append(p.accelerations[num])
         return res
+
+    # assigning values back to joints
+    def set_acc_for_joint(self, trj, arr, num):
+        for i in range(len(trj.points)):
+            trj.points[i].accelerations[num] = arr[i]
+        return trj
 
     # get median of array
     def get_median(self, arr):
@@ -257,6 +282,20 @@ class AuboRobotSimulatorNode:
             arr[i] = (arr[i] + med) / 2
         return arr[0:l1], arr[l1:l1+self.splitNum]
 
+    def print_vel(self, trj):
+        c = 0
+        for p in trj.points:
+            v = p.accelerations
+            rospy.logerr("%d Point acc=[%lf, %lf, %lf, %lf, %lf, %lf]", v[0], v[1], v[2], v[3], v[4], v[5])
+            c+=1
+
+    def print_acc(self, trj):
+        c = 0
+        for p in trj.points:
+            v = p.velocities
+            rospy.logerr("%d Point vel=[%lf, %lf, %lf, %lf, %lf, %lf]", v[0], v[1], v[2], v[3], v[4], v[5])
+            c+=1
+
     def trajectory_received(self, trj):
         if len(trj.points) != 0:
             for i in range(int(math.ceil(len(trj.points)/self.splitNum))+1):
@@ -266,7 +305,22 @@ class AuboRobotSimulatorNode:
 
                 # merge with other trajectory + smooth
                 # if (i==0) and len(self.traj_list) > 2:
-                #     self.traj_list[-1], t = self.smooth_trajectory_transition(self.traj_list[-1], t)
+                #     # self.traj_list[-1], t = self.smooth_trajectory_transition(self.traj_list[-1], t)
+                #     test1, test2 = self.smooth_trajectory_transition(self.traj_list[-1], t)
+                #     rospy.logerr("Acc!!!")
+                #     rospy.logerr("T1:")
+                #     self.print_acc(test1)
+                #     rospy.logerr("T2:")
+                #     self.print_acc(test2)
+                #     rospy.logerr("\n")
+                #
+                #     rospy.logerr("Vel!!!")
+                #     rospy.logerr("T1:")
+                #     self.print_vel(test1)
+                #     rospy.logerr("T2:")
+                #     self.print_vel(test2)
+                #     rospy.logerr("\n")
+
 
                 self.traj_list.append(t)
 
