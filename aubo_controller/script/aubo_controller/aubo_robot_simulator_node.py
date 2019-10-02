@@ -220,8 +220,8 @@ class AuboRobotSimulatorNode:
         while not self.motion_ctrl.sig_shutdown:
             try:
                 if self.motion_ctrl.is_in_motion() or self.EnableFlag == 0 or len(self.traj_list) == 0:
-                    if self.motion_ctrl.is_in_motion():
-                        pass
+                    # if self.motion_ctrl.is_in_motion():
+                        # pass
                         # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] In motion, continue...')
 
                     if self.EnableFlag == 0:
@@ -244,18 +244,16 @@ class AuboRobotSimulatorNode:
                     # for point in curr_traj.points:
                     for i in range(len(curr_traj.points)):
                         point = curr_traj.points[i]
-                        if i == len(curr_traj.points)-1:
-                            point.accelerations = [0.0] * 6
 
                         # first remaps point to controller joint order, the add the point to the controller.
                         point = self._to_controller_order(msg_in.joint_names, point)
                         self.motion_ctrl.add_motion_waypoint(point)
-                        rospy.logerr("pos [%f, %f, %f, %f, %f, %f]", point.positions[0], point.positions[1], point.positions[2],
-                                     point.positions[3], point.positions[4], point.positions[5])
-                        rospy.logerr("acc [%f, %f, %f, %f, %f, %f]", point.accelerations[0], point.accelerations[1], point.accelerations[2],
-                                     point.accelerations[3], point.accelerations[4], point.accelerations[5])
-                        rospy.logerr("vel [%f, %f, %f, %f, %f, %f]\n", point.velocities[0], point.velocities[1], point.velocities[2],
-                                     point.velocities[3], point.velocities[4], point.velocities[5])
+                        # rospy.logerr("pos [%f, %f, %f, %f, %f, %f]", point.positions[0], point.positions[1], point.positions[2],
+                        #              point.positions[3], point.positions[4], point.positions[5])
+                        # rospy.logerr("acc [%f, %f, %f, %f, %f, %f]", point.accelerations[0], point.accelerations[1], point.accelerations[2],
+                        #              point.accelerations[3], point.accelerations[4], point.accelerations[5])
+                        # rospy.logerr("vel [%f, %f, %f, %f, %f, %f]\n", point.velocities[0], point.velocities[1], point.velocities[2],
+                        #              point.velocities[3], point.velocities[4], point.velocities[5])
 
 
                 else:

@@ -209,6 +209,7 @@ class MotionControllerSimulator:
 
         with self.lock:
             if not self.sig_stop:
+
                 self.joint_positions = point.positions
                 self.joint_velocities = point.velocities
                 self.joint_accelerations = point.accelerations
