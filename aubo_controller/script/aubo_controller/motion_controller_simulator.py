@@ -140,6 +140,9 @@ class MotionControllerSimulator:
     def is_in_motion(self):
         return not self.motion_buffer.empty()
 
+    def points_left(self):
+        return self.motion_buffer.qsize()
+
     def shutdown(self):
         self.sig_shutdown = True
         # change to logdebug later?
