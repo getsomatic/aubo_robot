@@ -214,11 +214,12 @@ class AuboRobotSimulatorNode:
 
     # Smoothing 2 trajectories to remove speed fall
     def smooth_trajectory_transition(self, trj1, trj2):
-        test = JointTrajectoryPoint()
+        currTime = rospy.Time.now()
         # test.accelerations
         # test.velocities
         trj1, trj2 = self.smooth_vel(trj1, trj2)
-        trj1, trj2 = self.smooth_acc(trj1, trj2)
+        # trj1, trj2 = self.smooth_acc(trj1, trj2)
+        rospy.logerr("Smooting took %f seconds!", (rospy.Time.now()-currTime).to_sec())
         return trj1, trj2
 
     # Smoothing velocities
@@ -241,7 +242,9 @@ class AuboRobotSimulatorNode:
     # assigning values back to joints
     def set_vel_for_joint(self, trj, arr, num):
         for i in range(len(trj.points)):
-            trj.points[i].velocities[num] = arr[i]
+            v = list( trj.points[i].velocities)
+            v[num] = arr[i]
+            trj.points[i].velocities = tuple(v)
         return trj
 
     # Smoothing accelerations
@@ -278,22 +281,35 @@ class AuboRobotSimulatorNode:
         l1 = len(arr1)
         arr = arr1 + arr2
         med = self.get_median(arr)
+        rospy.logerr(med)
         for i in range(len(arr)):
-            arr[i] = (arr[i] + med) / 2
-        return arr[0:l1], arr[l1:l1+self.splitNum]
+            arr[i] = (arr[i] + med) / 2.0
+        return arr[0:l1], arr[l1:]
 
-    def print_vel(self, trj):
-        c = 0
-        for p in trj.points:
-            v = p.accelerations
-            rospy.logerr("%d Point acc=[%lf, %lf, %lf, %lf, %lf, %lf]", v[0], v[1], v[2], v[3], v[4], v[5])
-            c+=1
+    # applying linear smooth (?) to arrays
+    def line_smooth_arrays(self, arr1, arr2):
+        l1 = len(arr1)
+        arr = arr1 + arr2
+
+        s1 = arr1[0]
+        s2 = arr2[-1]
+        step = (s2-s1)/len(arr)
+        for i in range(1, len(arr)+1):
+            arr[i] = i*step
+        return arr[0:l1], arr[l1:]
 
     def print_acc(self, trj):
         c = 0
         for p in trj.points:
+            v = p.accelerations
+            rospy.logerr("[%d]\tPoint acc=[%f, %f, %f, %f, %f, %f]", c,  v[0], v[1], v[2], v[3], v[4], v[5])
+            c+=1
+
+    def print_vel(self, trj):
+        c = 0
+        for p in trj.points:
             v = p.velocities
-            rospy.logerr("%d Point vel=[%lf, %lf, %lf, %lf, %lf, %lf]", v[0], v[1], v[2], v[3], v[4], v[5])
+            rospy.logerr("[%d]\tPoint vel=[%f, %f, %f, %f, %f, %f]", c, v[0], v[1], v[2], v[3], v[4], v[5])
             c+=1
 
     def trajectory_received(self, trj):
@@ -301,25 +317,43 @@ class AuboRobotSimulatorNode:
             for i in range(int(math.ceil(len(trj.points)/self.splitNum))+1):
                 # divide into chucks of N='self.splitNum' points
                 t = copy.deepcopy(trj)
-                t.points = trj.points[i*self.splitNum:i*self.splitNum+self.splitNum]
+
+                #t.points = trj.points[i*self.splitNum:i*self.splitNum+self.splitNum]
+                if (i+2)*self.splitNum >= len(trj.points):
+                    t.points = trj.points[i*self.splitNum:]
+                else:
+                    t.points = trj.points[i*self.splitNum:i*self.splitNum+self.splitNum]
 
                 # merge with other trajectory + smooth
-                # if (i==0) and len(self.traj_list) > 2:
-                #     # self.traj_list[-1], t = self.smooth_trajectory_transition(self.traj_list[-1], t)
-                #     test1, test2 = self.smooth_trajectory_transition(self.traj_list[-1], t)
-                #     rospy.logerr("Acc!!!")
-                #     rospy.logerr("T1:")
-                #     self.print_acc(test1)
-                #     rospy.logerr("T2:")
-                #     self.print_acc(test2)
-                #     rospy.logerr("\n")
-                #
-                #     rospy.logerr("Vel!!!")
-                #     rospy.logerr("T1:")
-                #     self.print_vel(test1)
-                #     rospy.logerr("T2:")
-                #     self.print_vel(test2)
-                #     rospy.logerr("\n")
+                if (i==0) and len(self.traj_list) > 2:
+                    # self.traj_list[-1], t = self.smooth_trajectory_transition(self.traj_list[-1], t)
+                    rospy.logerr("vel!!!")
+                    rospy.logerr("T1:")
+                    self.print_vel(self.traj_list[-1])
+                    rospy.logerr("T2:")
+                    self.print_vel(t)
+                    rospy.logerr("\n")
+                    # rospy.logerr("acc!!!")
+                    # rospy.logerr("T1:")
+                    # self.print_acc(self.traj_list[-1])
+                    # rospy.logerr("T2:")
+                    # self.print_acc(test2)
+                    # rospy.logerr("\n")
+
+                    test1, test2 = self.smooth_trajectory_transition(self.traj_list[-1], t)
+
+                    rospy.logerr("vel!!!")
+                    rospy.logerr("T1:")
+                    self.print_vel(test1)
+                    rospy.logerr("T2:")
+                    self.print_vel(test2)
+                    rospy.logerr("\n")
+                    # rospy.logerr("acc!!!")
+                    # rospy.logerr("T1:")
+                    # self.print_acc(test1)
+                    # rospy.logerr("T2:")
+                    # self.print_acc(test2)
+                    # rospy.logerr("\n")
 
 
                 self.traj_list.append(t)
