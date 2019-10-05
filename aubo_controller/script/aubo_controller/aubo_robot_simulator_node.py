@@ -212,18 +212,13 @@ class AuboRobotSimulatorNode:
     @type  msg_in: JointTrajectory
     """
 
-    def print_acc(self, trj):
+    def print_trajectory(self, trj):
         c = 0
         for p in trj.points:
-            v = p.accelerations
-            rospy.logerr("[%d]\tPoint acc=[%f, %f, %f, %f, %f, %f]", c,  v[0], v[1], v[2], v[3], v[4], v[5])
-            c+=1
-
-    def print_vel(self, trj):
-        c = 0
-        for p in trj.points:
-            v = p.velocities
-            rospy.logerr("[%d]\tPoint vel=[%f, %f, %f, %f, %f, %f]", c, v[0], v[1], v[2], v[3], v[4], v[5])
+            acc = p.accelerations
+            vel = p.velocities
+            rospy.logerr("[%d]\tacc=[%f, %f, %f, %f, %f, %f]",c, acc[0], acc[1], acc[2], acc[3], acc[4], acc[5])
+            rospy.logerr("[%d]\tvel=[%f, %f, %f, %f, %f, %f]\n",c, vel[0], vel[1], vel[2], vel[3], vel[4], vel[5])
             c+=1
 
     # getting values for each joint
@@ -259,7 +254,7 @@ class AuboRobotSimulatorNode:
     # Smoothing 2 trajectories to remove speed fall
     def smooth_trajectory_transition(self, trj1, trj2):
         currTime = rospy.Time.now()
-        trj1, trj2 = self.smooth_vel(trj1, trj2)
+        # trj1, trj2 = self.smooth_vel(trj1, trj2)
         trj1, trj2 = self.smooth_acc(trj1, trj2)
         rospy.logerr("Smooting took %f seconds!", (rospy.Time.now()-currTime).to_sec())
         return trj1, trj2
@@ -325,32 +320,18 @@ class AuboRobotSimulatorNode:
                 # merge with other trajectory + smooth
                 if (i==0) and len(self.traj_list) > 1:
                     # self.traj_list[-1], t = self.smooth_trajectory_transition(self.traj_list[-1], t)
-                    rospy.logerr("vel!!!")
-                    rospy.logerr("T1:")
-                    self.print_vel(self.traj_list[-1])
-                    rospy.logerr("T2:")
-                    self.print_vel(t)
-                    rospy.logerr("\n")
-                    rospy.logerr("acc!!!")
-                    rospy.logerr("T1:")
-                    self.print_acc(self.traj_list[-1])
-                    rospy.logerr("T2:")
-                    self.print_acc(t)
+                    rospy.logerr("self.traj_list[-1]:")
+                    self.print_trajectory(self.traj_list[-1])
+                    rospy.logerr("traj:")
+                    self.print_trajectory(t)
                     rospy.logerr("\n")
 
                     self.traj_list[-1], t = self.smooth_trajectory_transition(self.traj_list[-1], t)
 
-                    rospy.logerr("vel!!!")
-                    rospy.logerr("T1:")
-                    self.print_vel(self.traj_list[-1])
-                    rospy.logerr("T2:")
-                    self.print_vel(t)
-                    rospy.logerr("\n")
-                    rospy.logerr("acc!!!")
-                    rospy.logerr("T1:")
-                    self.print_acc(self.traj_list[-1])
-                    rospy.logerr("T2:")
-                    self.print_acc(t)
+                    rospy.logerr("new self.traj_list[-1]:")
+                    self.print_trajectory(self.traj_list[-1])
+                    rospy.logerr("new traj:")
+                    self.print_trajectory(t)
                     rospy.logerr("\n")
 
 
@@ -363,7 +344,7 @@ class AuboRobotSimulatorNode:
 
         while not self.motion_ctrl.sig_shutdown:
             try:
-                if self.motion_ctrl.is_in_motion() or self.EnableFlag == 0 or len(self.traj_list) == 0 or self.motion_ctrl.points_left()>10:
+                if self.motion_ctrl.is_in_motion() or self.EnableFlag == 0 or len(self.traj_list) == 0 or self.motion_ctrl.points_left()>=self.splitNum:
                     # if self.motion_ctrl.is_in_motion():
                         # pass
                         # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] In motion, continue...')
