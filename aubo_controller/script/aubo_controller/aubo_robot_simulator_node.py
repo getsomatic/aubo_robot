@@ -238,7 +238,6 @@ class AuboRobotSimulatorNode:
             rospy.loginfo("")
             c += 1
 
-
     # getting values for each joint
     def get_vel_for_joint(self, trj, num):
         res = []
@@ -272,16 +271,14 @@ class AuboRobotSimulatorNode:
     # Smoothing velocities
     def smooth_vel(self, trj):
         for i in range(6):
-            v = self.get_vel_for_joint(trj, i)
-            v = self.line_smooth_arrays(v)
+            v = self.line_smooth_array(self.get_vel_for_joint(trj, i))
             trj = self.set_vel_for_joint(trj, v, i)
         return trj
 
     # Smoothing accelerations
     def smooth_acc(self, trj):
         for i in range(6):
-            a = self.get_acc_for_joint(trj, i)
-            a = self.line_smooth_arrays(a)
+            a = self.line_smooth_array(self.get_acc_for_joint(trj, i))
             trj = self.set_acc_for_joint(trj, a, i)
         return trj
 
@@ -302,7 +299,7 @@ class AuboRobotSimulatorNode:
         return arr[0:l1], arr[l1:]
 
     # applying linear smooth (?) to arrays
-    def line_smooth_arrays(self, arr):
+    def line_smooth_array(self, arr):
         step = (arr[-1] - arr[0]) / (len(arr) - 1)
         for i in range(0, len(arr)):
             arr[i] = arr[0] + i * step
@@ -310,16 +307,16 @@ class AuboRobotSimulatorNode:
 
     # Smoothing 2 trajectories to remove speed fall
     def smooth_trajectory_transition(self, trj1, trj2):
-        currTime = rospy.Time.now()
+        curr_time = rospy.Time.now()
         fin_trj = copy.deepcopy(trj1)
-
         for p in trj2.points:
             fin_trj.points.append(p)
 
         fin_trj = self.smooth_vel(fin_trj)
         fin_trj = self.smooth_acc(fin_trj)
         fin_trj = self.recalculate_time(fin_trj)
-        rospy.logerr("Smooting took %f seconds!", (rospy.Time.now() - currTime).to_sec())
+
+        rospy.logerr("Smoothing took %f seconds!", (rospy.Time.now() - curr_time).to_sec())
         return fin_trj
 
     def recalculate_time(self, trj):
@@ -374,16 +371,17 @@ class AuboRobotSimulatorNode:
 
         return trj
 
+    # dont use, unexpected behavior
     def recalc_time(self, trj):
         t = copy.deepcopy(trj.points[0].time_from_start)
         for i in range(len(trj.points)):
             trj.points[i].time_from_start = trj.points[i].time_from_start - t
         return trj
 
+    # splits trajectory into chucks of N='self.splitNum' points, if possible
     def trajectory_received(self, trj):
         if len(trj.points) != 0:
             for i in range(int(math.ceil(len(trj.points) / self.splitNum)) + 1):
-                # divide into chucks of N='self.splitNum' points
                 t = copy.deepcopy(trj)
 
                 t.points = trj.points[i * self.splitNum:i * self.splitNum + self.splitNum]
