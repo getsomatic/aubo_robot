@@ -178,6 +178,12 @@ class MotionControllerSimulator:
                 joint_point_msg.positions = self.joint_positions
                 joint_point_msg.velocities = self.joint_velocities
                 joint_point_msg.accelerations = self.joint_accelerations
+
+                # pos = self.joint_positions
+                # vel = self.joint_velocities
+                # rospy.logwarn("pos=[%f, %f, %f, %f, %f, %f]", pos[0], pos[1], pos[2], pos[3], pos[4], pos[5])
+                # rospy.logwarn("vel=[%f, %f, %f, %f, %f, %f]\n", vel[0], vel[1], vel[2], vel[3], vel[4], vel[5])
+
                 # print('sending: ' + str(time)
                 #      + ' ' + str(self.joint_positions[0]) + ' ' + str(self.joint_positions[1]) + ' ' + str(self.joint_positions[2])
                 #      + ' ' + str(self.joint_positions[3]) + ' ' + str(self.joint_positions[4]) + ' ' + str(self.joint_positions[5])
@@ -318,7 +324,7 @@ class MotionControllerSimulator:
                 last_goal_point = copy.deepcopy(current_goal_point)
 
             except Exception as e:
-                rospy.logerr('Unexpected exception: %s', e)
+                rospy.logerr('Unexpected exception2: %s', e)
 
             # if user want stop ,we will clear Trajectory buffer data from moveit
             if self.cancle_trajectory != 0:

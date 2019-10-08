@@ -204,7 +204,7 @@ class AuboRobotSimulatorNode:
             # rospy.loginfo('mode %d', data.data[1])
 
         except Exception as e:
-            rospy.logerr('Unexpected exception: %s', e)
+            rospy.logerr('Unexpected exception1: %s', e)
 
     """
     Trajectory subscription callback (gets called whenever a "joint_path_command" message is received).
@@ -220,10 +220,11 @@ class AuboRobotSimulatorNode:
         rospy.logwarn("time_from_start = %f", p.time_from_start.to_sec())
         rospy.logwarn("pos=[%f, %f, %f, %f, %f, %f]", pos[0], pos[1], pos[2], pos[3], pos[4], pos[5])
         rospy.logwarn("vel=[%f, %f, %f, %f, %f, %f]", vel[0], vel[1], vel[2], vel[3], vel[4], vel[5])
-        rospy.logwarn("acc=[%f, %f, %f, %f, %f, %f]", acc[0], acc[1], acc[2], acc[3], acc[4], acc[5])
+        rospy.logwarn("acc=[%f, %f, %f, %f, %f, %f]\n", acc[0], acc[1], acc[2], acc[3], acc[4], acc[5])
 
     def print_trajectory(self, trj):
         c = 0
+        rospy.loginfo("header.stamp = %f", trj.header.stamp.to_sec())
         for p in trj.points:
             rospy.loginfo("point #%d", c)
             self.print_point(p)
@@ -231,7 +232,8 @@ class AuboRobotSimulatorNode:
 
     def print_trajectories(self, trj1, trj2):
         c = 0
-        for i in range(len(trj2.points)):
+        rospy.loginfo("Len t1=%d, t2=%d", len(trj1.points), len(trj2.points))
+        for i in range(min(len(trj1.points), len(trj2.points))):
             rospy.loginfo("point #%d BEFORE", c)
             self.print_point(trj1.points[i])
             rospy.loginfo("point #%d AFTER", c)
@@ -314,10 +316,9 @@ class AuboRobotSimulatorNode:
             fin_trj.points.append(trj2.points[i])
 
         # fin_trj.points[0].time_from_start = rospy.rostime.Duration(0)
-
-        fin_trj = self.smooth_vel(fin_trj)
+        #fin_trj = self.smooth_vel(fin_trj)
         fin_trj = self.smooth_acc(fin_trj)
-        fin_trj = self.recalculate_time(fin_trj)
+        #fin_trj = self.recalculate_time(fin_trj)
 
         rospy.logerr("Smoothing took %f seconds!", (rospy.Time.now() - curr_time).to_sec())
         return fin_trj
@@ -348,9 +349,8 @@ class AuboRobotSimulatorNode:
                 p1 = copy.deepcopy(trj.points[i].positions[j])
                 v0 = copy.deepcopy(trj.points[i - 1].velocities[j])
                 v1 = copy.deepcopy(trj.points[i].velocities[j])
-                # rospy.loginfo("curr=%f new=%f {2 * ([%f] - [%f]) / ([%f] + [%f])}", delta_t, abs(2 * (p1 - p0) / (v0 + v1)), p1, p0, v0, v1)
                 delta_t = max(abs(2 * (p1 - p0) / (v0 + v1)), delta_t)
-            rospy.loginfo("final delta_t=%f", delta_t)
+            # rospy.loginfo("final delta_t=%f", delta_t)
 
             if delta_t != 0:
                 # recalculate velocities
@@ -371,8 +371,9 @@ class AuboRobotSimulatorNode:
                 trj.points[i].accelerations = tuple(acc)
             else:
                 rospy.logerr("Delta t = 0 !!!")
+
             rospy.loginfo("Old Time = %f", trj.points[i].time_from_start.to_sec())
-            # trj.points[i].time_from_start = rospy.rostime.Duration(trj.points[i - 1].time_from_start.to_sec() + delta_t)
+            trj.points[i].time_from_start = rospy.rostime.Duration(trj.points[i - 1].time_from_start.to_sec() + delta_t)
             rospy.loginfo("New Time = %f\n", trj.points[i].time_from_start.to_sec())
 
         return trj
@@ -382,29 +383,28 @@ class AuboRobotSimulatorNode:
         t = copy.deepcopy(trj.points[0].time_from_start)
         for i in range(len(trj.points)):
             trj.points[i].time_from_start = trj.points[i].time_from_start - t
+
+        rospy.loginfo("recalc time")
+        x = 0
+        for p in trj.points:
+            rospy.logwarn("[%d] Point tfs = %f", x,  p.time_from_start.to_sec())
+            x += 1
         return trj
 
     # splits trajectory into chucks of N='self.splitNum' points, if possible
     def trajectory_received(self, trj):
+        rospy.loginfo("Trajectory Received [size = %d]", len(trj.points))
+        # self.print_trajectory(trj)
+
         if len(trj.points) != 0:
             for i in range(int(math.ceil(len(trj.points) / self.splitNum)) + 1):
                 t = copy.deepcopy(trj)
-
-                t.points = trj.points[i * self.splitNum:i * self.splitNum + self.splitNum]
-
+                t.points = t.points[i * self.splitNum: i * self.splitNum + self.splitNum]
 
                 if (i == 0) and len(self.traj_list) > 1:
-                    # self.traj_list[-1], t = self.smooth_trajectory_transition(self.traj_list[-1], t)
-                    t0before = copy.deepcopy(self.traj_list[-1])
-                    t1before = copy.deepcopy(t)
-
-                    self.traj_list[-1] = self.smooth_trajectory_transition(self.traj_list[-1], t)
-
-                    for p in t1before.points:
-                        t0before.points.append(p)
-
-                    rospy.loginfo("self.traj_list[-1]:")
-                    self.print_trajectories(t0before, self.traj_list[-1])
+                    trj = self.traj_list.pop()
+                    with self.lock:
+                        self.traj_list.append(self.smooth_trajectory_transition(self.traj_list[-1], t))
 
                 elif len(t.points) > 0:
                     self.traj_list.append(t)
@@ -427,16 +427,13 @@ class AuboRobotSimulatorNode:
                     # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] len(self.traj_list) == 0, continue...')
                 continue
 
-            rospy.logerr('[aubo_robot_simulator_node/exec_loop] Executing...')
+            rospy.loginfo('[aubo_robot_simulator_node/exec_loop] Executing...')
             msg_in = self.traj_list.pop(0)
 
             if len(msg_in.points) != 0:
-                rospy.logerr('[aubo_robot_simulator_node/exec_loop] msg_in.len=%d', len(msg_in.points))
-
-                # if len(msg_in.points) != 0:
+                rospy.loginfo('[aubo_robot_simulator_node/exec_loop] msg_in.len=%d', len(msg_in.points))
                 self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
-                rospy.loginfo('[aubo_robot_simulator_node/exec_loop] The velocity scale factor is: %s',
-                              str(self.velocity_scale_factor))
+                rospy.loginfo('[aubo_robot_simulator_node/exec_loop] The velocity scale factor is: %s', str(self.velocity_scale_factor))
                 curr_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
 
                 # for point in curr_traj.points:
@@ -444,7 +441,8 @@ class AuboRobotSimulatorNode:
                     # first remaps point to controller joint order, the add the point to the controller.
                     point = self._to_controller_order(msg_in.joint_names, point)
                     self.motion_ctrl.add_motion_waypoint(point)
-
+                    rospy.loginfo("Pushed point:")
+                    self.print_point(point)
 
             else:
                 rospy.logerr('[aubo_robot_simulator_node/exec_loop] len(msg_in.points) == 0')
