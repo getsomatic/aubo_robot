@@ -263,7 +263,10 @@ class MotionControllerSimulator:
                 else:
                     # If current move duration is greater than update_duration, interpolate the joint positions to form a smooth trajectory
                     # Provide an exception to this rule: if update rate is <=0, do not add interpolated points
+
                     T = current_goal_point.time_from_start.to_sec() - last_goal_point.time_from_start.to_sec()
+                    if T==0.0:
+                        rospy.logerr("current=%f, last=%f, diff=%f", current_goal_point.time_from_start.to_sec(), last_goal_point.time_from_start.to_sec(), T)
                     # five degree polynomial interpolation
                     # a0 = last_goal_point.positions[:]
                     a1 = last_goal_point.velocities[:]
