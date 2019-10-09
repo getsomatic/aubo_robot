@@ -6,7 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   aubo_msgs
-  somatic_msgs
+  # somatic_msgs
 )
 
 catkin_package(

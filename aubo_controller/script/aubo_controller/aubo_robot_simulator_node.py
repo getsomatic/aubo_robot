@@ -69,8 +69,11 @@ class AuboRobotSimulatorNode:
 
     def __init__(self):
         rospy.init_node('aubo_robot_simulator')
+        self.seq_number =  1.0
         self.traj_list = []
         self.splitNum = 5
+        self.last_trajectory = JointTrajectory()
+        self.last_tfs = rospy.rostime.Duration(0)
 
         # Class lock for only 1 thread to use it at same time
         self.lock = threading.Lock()
@@ -204,7 +207,7 @@ class AuboRobotSimulatorNode:
             # rospy.loginfo('mode %d', data.data[1])
 
         except Exception as e:
-            rospy.logerr('Unexpected exception: %s', e)
+            rospy.logerr('Unexpected exception1: %s', e)
 
     """
     Trajectory subscription callback (gets called whenever a "joint_path_command" message is received).
@@ -212,19 +215,43 @@ class AuboRobotSimulatorNode:
     @type  msg_in: JointTrajectory
     """
 
-    def print_acc(self, trj):
-        c = 0
-        for p in trj.points:
-            v = p.accelerations
-            rospy.logerr("[%d]\tPoint acc=[%f, %f, %f, %f, %f, %f]", c,  v[0], v[1], v[2], v[3], v[4], v[5])
-            c+=1
+    # prints
+    def print_point(self, p):
+        acc = p.accelerations
+        vel = p.velocities
+        pos = p.positions
+        rospy.logwarn("time_from_start = %f", p.time_from_start.to_sec())
+        rospy.logwarn("pos=[%f, %f, %f, %f, %f, %f]", pos[0], pos[1], pos[2], pos[3], pos[4], pos[5])
+        rospy.logwarn("vel=[%f, %f, %f, %f, %f, %f]", vel[0], vel[1], vel[2], vel[3], vel[4], vel[5])
+        rospy.logwarn("acc=[%f, %f, %f, %f, %f, %f]\n", acc[0], acc[1], acc[2], acc[3], acc[4], acc[5])
 
-    def print_vel(self, trj):
+    def print_trajectory(self, trj):
         c = 0
+        rospy.loginfo("header.stamp = %f", trj.header.stamp.to_sec())
+        rospy.loginfo("header.seq = %f", trj.header.seq)
         for p in trj.points:
-            v = p.velocities
-            rospy.logerr("[%d]\tPoint vel=[%f, %f, %f, %f, %f, %f]", c, v[0], v[1], v[2], v[3], v[4], v[5])
-            c+=1
+            rospy.loginfo("point #%d", c)
+            self.print_point(p)
+            c += 1
+
+    def print_trajectory_times(self, trj):
+        c = 0
+        rospy.loginfo("header.stamp = %f", trj.header.stamp.to_sec())
+        rospy.loginfo("header.seq = %f", trj.header.seq)
+        for p in trj.points:
+            rospy.logwarn("[%d] time_from_start = %f", c, p.time_from_start.to_sec())
+            c += 1
+
+    def print_trajectories(self, trj1, trj2):
+        c = 0
+        rospy.loginfo("Len t1=%d, t2=%d", len(trj1.points), len(trj2.points))
+        for i in range(min(len(trj1.points), len(trj2.points))):
+            rospy.loginfo("point #%d BEFORE", c)
+            self.print_point(trj1.points[i])
+            rospy.loginfo("point #%d AFTER", c)
+            self.print_point(trj2.points[i])
+            rospy.loginfo("")
+            c += 1
 
     # getting values for each joint
     def get_vel_for_joint(self, trj, num):
@@ -236,7 +263,7 @@ class AuboRobotSimulatorNode:
     # assigning values back to joints
     def set_vel_for_joint(self, trj, arr, num):
         for i in range(len(trj.points)):
-            v = list( trj.points[i].velocities)
+            v = list(trj.points[i].velocities)
             v[num] = arr[i]
             trj.points[i].velocities = tuple(v)
         return trj
@@ -251,158 +278,177 @@ class AuboRobotSimulatorNode:
     # assigning values back to joints
     def set_acc_for_joint(self, trj, arr, num):
         for i in range(len(trj.points)):
-            v = list( trj.points[i].accelerations)
+            v = list(trj.points[i].accelerations)
             v[num] = arr[i]
             trj.points[i].accelerations = tuple(v)
         return trj
 
-    # Smoothing 2 trajectories to remove speed fall
-    def smooth_trajectory_transition(self, trj1, trj2):
-        currTime = rospy.Time.now()
-        trj1, trj2 = self.smooth_vel(trj1, trj2)
-        trj1, trj2 = self.smooth_acc(trj1, trj2)
-        rospy.logerr("Smooting took %f seconds!", (rospy.Time.now()-currTime).to_sec())
-        return trj1, trj2
-
     # Smoothing velocities
-    def smooth_vel(self, trj1, trj2):
+    def smooth_vel(self, trj):
         for i in range(6):
-            v1 = self.get_vel_for_joint(trj1, i)
-            v2 = self.get_vel_for_joint(trj2, i)
-            v1, v2 = self.line_smooth_arrays(v1, v2)
-            trj1 = self.set_vel_for_joint(trj1, v1, i)
-            trj2 = self.set_vel_for_joint(trj2, v2, i)
-        return trj1, trj2
+            v = self.linear_smooth_array(self.get_vel_for_joint(trj, i))
+            trj = self.set_vel_for_joint(trj, v, i)
+        return trj
 
     # Smoothing accelerations
-    def smooth_acc(self, trj1, trj2):
+    def smooth_acc(self, trj):
         for i in range(6):
-            a1 = self.get_acc_for_joint(trj1, i)
-            a2 = self.get_acc_for_joint(trj2, i)
-            a1, a2 = self.line_smooth_arrays(a1, a2)
-            trj1 = self.set_acc_for_joint(trj1, a1, i)
-            trj2 = self.set_acc_for_joint(trj2, a2, i)
-        return trj1, trj2
-
-    # get median of array
-    def get_median(self, arr):
-        n = len(arr)
-        s = sorted(arr)
-        return (sum(s[n//2-1:n//2+1])/2.0, s[n//2])[n % 2] if n else None
-
-    # applying median smooth to arrays
-    def median_smooth_arrays(self, arr1, arr2):
-        l1 = len(arr1)
-        arr = arr1 + arr2
-        med = self.get_median(arr)
-        # rospy.logerr(med)
-        for i in range(len(arr)):
-            arr[i] = (arr[i] + med) / 2.0
-        return arr[0:l1], arr[l1:]
+            a = self.linear_smooth_array(self.get_acc_for_joint(trj, i))
+            trj = self.set_acc_for_joint(trj, a, i)
+        return trj
 
     # applying linear smooth (?) to arrays
-    def line_smooth_arrays(self, arr1, arr2):
-        l1 = len(arr1)
-        arr = arr1 + arr2
-        step = (arr2[-1]-arr1[0])/(len(arr)-1)
+    def linear_smooth_array(self, arr):
+        res = copy.deepcopy(arr)
+        step = (arr[-1] - arr[0]) / (len(arr) - 1)
         for i in range(0, len(arr)):
-            arr[i] = arr[0] + i*step
-        return arr[0:l1], arr[l1:]
+            res[i] = arr[0] + i * step
+        return res
 
+    # recalculates time + vel + acc
+    def recalculate_time(self, trj):
+        # point = JointTrajectoryPoint()
+        # point.velocities
+        # point.accelerations
+        # point.time_from_start
+        # point.positions
+        #
+        # trajectory = JointTrajectory()
+        # trajectory.points
+        # trajectory.joint_names
+        # trajectory.header
 
+        if len(trj.points) < 2:
+            rospy.logerr("len(trj.points) < 2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            return trj
+
+        for i in range(1, len(trj.points)):
+            delta_t = -1.0
+
+            # get max time
+            for j in range(6):
+                p0 = copy.deepcopy(trj.points[i - 1].positions[j])
+                p1 = copy.deepcopy(trj.points[i].positions[j])
+                v0 = copy.deepcopy(trj.points[i - 1].velocities[j])
+                v1 = copy.deepcopy(trj.points[i].velocities[j])
+                delta_t = max(abs(2 * (p1 - p0) / (v0 + v1)), delta_t)
+
+            if delta_t != 0:
+                vel = [0.0] * 6
+                for j in range(6):
+                    p0 = copy.deepcopy(trj.points[i - 1].positions[j])
+                    p1 = copy.deepcopy(trj.points[i].positions[j])
+                    v0 = copy.deepcopy(trj.points[i - 1].velocities[j])
+                    vel[j] = 2 * (p1 - p0) / delta_t - v0
+                trj.points[i].velocities = tuple(vel)
+
+                acc = [0.0] * 6
+                for j in range(6):
+                    v0 = copy.deepcopy(trj.points[i - 1].velocities[j])
+                    v1 = copy.deepcopy(trj.points[i].velocities[j])
+                    acc[j] = (v1 - v0) / delta_t
+                trj.points[i].accelerations = tuple(acc)
+            else:
+                rospy.logerr("Delta t = 0 !!!")
+
+            # rospy.loginfo("Old Time = %f", trj.points[i].time_from_start.to_sec())
+            trj.points[i].time_from_start = rospy.rostime.Duration(trj.points[i - 1].time_from_start.to_sec() + delta_t)
+            # rospy.loginfo("New Time = %f\n", trj.points[i].time_from_start.to_sec())
+
+        return trj
+
+    # dont use, unexpected behavior
+    def recalc_time(self, trj):
+        if len(self.last_trajectory.points) > 0 and len(self.traj_list) > 0:
+            rospy.loginfo("recalc_time running")
+        # if len(self.last_trajectory.points) > 0:
+            t = self.last_trajectory.points[-1].time_from_start - trj.points[0].time_from_start
+            for i in range(len(trj.points)):
+                trj.points[i].time_from_start = trj.points[i].time_from_start + t
+
+            rospy.loginfo("recalc time")
+            x = 0
+            for p in trj.points:
+                rospy.logwarn("[%d] Point tfs = %f", x, p.time_from_start.to_sec())
+                x += 1
+        return trj
+
+    # Smoothing 2 trajectories to remove speed fall
+    def smooth_trajectory_transition(self, trj1, trj2):
+        curr_time = rospy.Time.now()
+
+        fin_trj = copy.deepcopy(trj1)
+        for i in range(1, len(trj2.points)):
+            fin_trj.points.append(trj2.points[i])
+
+        fin_trj = self.smooth_vel(fin_trj)
+        fin_trj = self.smooth_acc(fin_trj)
+        fin_trj = self.recalculate_time(fin_trj)
+
+        rospy.logerr("Smoothing took %f seconds!", (rospy.Time.now() - curr_time).to_sec())
+        return fin_trj
+
+    # splits trajectory into chucks of N='self.splitNum' points, if possible
     def trajectory_received(self, trj):
+        rospy.loginfo("Trajectory Received [size = %d]", len(trj.points))
+        trj = self.recalc_time(trj)
+        self.print_trajectory_times(trj)
         if len(trj.points) != 0:
-            for i in range(int(math.ceil(len(trj.points)/self.splitNum))+1):
-                # divide into chucks of N='self.splitNum' points
+            slices = int(math.ceil(len(trj.points) / self.splitNum)) + 1
+            for i in range(slices):
                 t = copy.deepcopy(trj)
 
-                t.points = trj.points[i*self.splitNum:i*self.splitNum+self.splitNum]
-                # if (i+2)*self.splitNum >= len(trj.points):
-                #     t.points = trj.points[i*self.splitNum:]
-                # else:
-                #     t.points = trj.points[i*self.splitNum:i*self.splitNum+self.splitNum]
+                self.seq_number += 1.0
+                t.header.seq = self.seq_number
 
-                # merge with other trajectory + smooth
-                if (i==0) and len(self.traj_list) > 1:
-                    # self.traj_list[-1], t = self.smooth_trajectory_transition(self.traj_list[-1], t)
-                    rospy.logerr("vel!!!")
-                    rospy.logerr("T1:")
-                    self.print_vel(self.traj_list[-1])
-                    rospy.logerr("T2:")
-                    self.print_vel(t)
-                    rospy.logerr("\n")
-                    rospy.logerr("acc!!!")
-                    rospy.logerr("T1:")
-                    self.print_acc(self.traj_list[-1])
-                    rospy.logerr("T2:")
-                    self.print_acc(t)
-                    rospy.logerr("\n")
+                t.points = t.points[i*self.splitNum: i*self.splitNum + self.splitNum]
 
-                    self.traj_list[-1], t = self.smooth_trajectory_transition(self.traj_list[-1], t)
-
-                    rospy.logerr("vel!!!")
-                    rospy.logerr("T1:")
-                    self.print_vel(self.traj_list[-1])
-                    rospy.logerr("T2:")
-                    self.print_vel(t)
-                    rospy.logerr("\n")
-                    rospy.logerr("acc!!!")
-                    rospy.logerr("T1:")
-                    self.print_acc(self.traj_list[-1])
-                    rospy.logerr("T2:")
-                    self.print_acc(t)
-                    rospy.logerr("\n")
-
-
-                if len(t.points)>0:
-                    self.traj_list.append(t)
+                if (i == 0) and (len(self.traj_list) > 1):
+                    last_traj = self.traj_list.pop()
+                    smoothed_trajectory = self.smooth_trajectory_transition(last_traj, t)
+                    smoothed_trajectory.header.seq = self.seq_number
+                    self.traj_list.append(copy.deepcopy(smoothed_trajectory))
+                    self.last_trajectory = copy.deepcopy(smoothed_trajectory)
+                elif len(t.points) > 0:
+                    self.last_trajectory = copy.deepcopy(t)
+                    self.traj_list.append(copy.deepcopy(t))
 
 
     def exec_loop(self):
-        rospy.logerr('[aubo_robot_simulator_node/exec_loop] Started!')
-
         while not self.motion_ctrl.sig_shutdown:
-            try:
-                if self.motion_ctrl.is_in_motion() or self.EnableFlag == 0 or len(self.traj_list) == 0 or self.motion_ctrl.points_left()>10:
-                    # if self.motion_ctrl.is_in_motion():
-                        # pass
-                        # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] In motion, continue...')
+            if self.motion_ctrl.is_in_motion() or self.EnableFlag == 0 or len(self.traj_list) == 0 or self.motion_ctrl.points_left() >= self.splitNum:
+                continue
 
-                    if self.EnableFlag == 0:
-                        rospy.loginfo('[aubo_robot_simulator_node/exec_loop] self.EnableFlag == 0, continue...')
-
-                    if len(self.traj_list) == 0:
-                        pass
-                        # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] len(self.traj_list) == 0, continue...')
-                    continue
-
-
-                rospy.logerr('[aubo_robot_simulator_node/exec_loop] Executing...')
+            rospy.loginfo('[aubo_robot_simulator_node/exec_loop] Executing...')
+            with self.lock:
                 msg_in = self.traj_list.pop(0)
 
                 if len(msg_in.points) != 0:
-                    rospy.logerr('[aubo_robot_simulator_node/exec_loop] msg_in.len=%d', len(msg_in.points))
-
-                # if len(msg_in.points) != 0:
+                    # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] msg_in.len=%d', len(msg_in.points))
                     self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
-                    rospy.loginfo('[aubo_robot_simulator_node/exec_loop] The velocity scale factor is: %s', str(self.velocity_scale_factor))
+                    # rospy.loginfo('[aubo_robot_simulator_node/exec_loop] The velocity scale factor is: %s', str(self.velocity_scale_factor))
                     curr_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
+                    rospy.loginfo('Sending trj point by point:')
 
-                    # for point in curr_traj.points:
+                    self.print_trajectory(curr_traj)
+                    first_point_tfs = curr_traj.points[0].time_from_start
+                    if curr_traj.points[0].time_from_start < self.last_tfs:
+                        for p in curr_traj.points:
+                            p.time_from_start -= first_point_tfs
+                    self.print_trajectory(curr_traj)
+
                     for point in curr_traj.points:
-                        # first remaps point to controller joint order, the add the point to the controller.
                         point = self._to_controller_order(msg_in.joint_names, point)
+
                         self.motion_ctrl.add_motion_waypoint(point)
+
+                    self.last_tfs = curr_traj.points[-1].time_from_start
 
 
                 else:
                     rospy.logerr('[aubo_robot_simulator_node/exec_loop] len(msg_in.points) == 0')
 
-            except Exception as e:
-                rospy.logerr('[aubo_robot_simulator_node/exec_loop] Exception: %s', e)
-
         rospy.logerr('[aubo_robot_simulator_node/exec_loop] Exiting (sig_shutdown)')
-
 
     """
     Remaps point to controller joint order
