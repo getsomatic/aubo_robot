@@ -312,8 +312,7 @@ class AuboRobotSimulatorNode:
                 for j in range(6):
                     p0 = copy.deepcopy(trj.points[i-1].positions[j])
                     p1 = copy.deepcopy(trj.points[i].positions[j])
-                    v0 = copy.deepcopy(trj.points[i-1].velocities[j])
-                    vel[j] = 2*(p1-p0)/delta_t-v0
+                    vel[j] = (p1-p0)/delta_t
                 trj.points[i].velocities = tuple(vel)
 
                 acc = [0.0] * 6
@@ -368,7 +367,9 @@ class AuboRobotSimulatorNode:
     def check_trj_constraints(self, trj):
         for p in trj.points:
             for j in range(6):
-                if p.velocities[j] > self.joint_vel_lim[j] or p.velocities[j] > self.joint_vel_lim[j]:
+                if abs(p.velocities[j]) >= self.joint_vel_lim[j]: # or abs(p.accelerations[j]) >= 1.7:
+                    rospy.logerr("[%d] vel[j] %f >= %f ", j, abs(p.velocities[j]), self.joint_vel_lim[j])
+                    rospy.logerr("[%d] acc[j] %f >= %f ", j, abs(p.accelerations[j]), 1.7)
                     return False
         return True
 
@@ -387,42 +388,43 @@ class AuboRobotSimulatorNode:
         # rospy.logwarn("Total = %f", total)
 
         for i in range(1, len(trajectory.points)):
-            delta_t = joint_dist[i] / total
+            delta_t = joint_dist[i] / total * time
 
-            rospy.logwarn("before time_from_start = %f", trajectory.points[i].time_from_start.to_sec())
+            # rospy.logwarn("before time_from_start = %f", trajectory.points[i].time_from_start.to_sec())
             trajectory.points[i].time_from_start = rospy.rostime.Duration(trajectory.points[i-1].time_from_start.to_sec() + delta_t)
-            rospy.logwarn("after time_from_start = %f\n", trajectory.points[i].time_from_start.to_sec())
+            # rospy.logwarn("after time_from_start = %f\n", trajectory.points[i].time_from_start.to_sec())
 
             vel = [0.0] * 6
             for j in range(6):
                 p0 = copy.deepcopy(trajectory.points[i-1].positions[j])
                 p1 = copy.deepcopy(trajectory.points[i].positions[j])
-                v0 = copy.deepcopy(trajectory.points[i-1].velocities[j])
-                vel[j] = 2*(p1-p0)/delta_t-v0
+                vel[j] = (p1-p0) / delta_t
             trajectory.points[i].velocities = tuple(vel)
 
             acc = [0.0] * 6
             for j in range(6):
                 v0 = copy.deepcopy(trajectory.points[i-1].velocities[j])
                 v1 = copy.deepcopy(trajectory.points[i].velocities[j])
-                acc[j] = (v1-v0)/delta_t
+                acc[j] = (v1-v0) / delta_t
             trajectory.points[i].accelerations = tuple(acc)
 
         return trajectory, self.check_trj_constraints(trajectory)
 
     def speed_up_traj(self, trj):
         # 10 000 seconds
-        time = range(10000)
-        first = 0
-        last = len(time) - 1
+        first = 0.0
+        last = 10000.0
+        mid = -1.0
         tmp_trj = JointTrajectory()
-        while last - first > 1:
-            mid = int(math.ceil((first+last)/2))
-            tmp_trj, cons = self.scale_trj(trj, time[mid] / 1000)
-            if not cons:
+        while last - first > 0.001:
+            mid = (first+last)/2
+            tmp_trj, cons = self.scale_trj(trj, mid)
+            if cons:
                 last = mid
             else:
                 first = mid
+
+        rospy.logwarn("Time: old=%f, new=%f", trj.points[-1].time_from_start.to_sec(), mid)
         return tmp_trj
 
     def new_traj_algo(self, trj):
@@ -469,13 +471,16 @@ class AuboRobotSimulatorNode:
     # trajectory.header
 
     # splits trajectory into chucks of N='self.splitNum' points, if possible
-    def trajectory_received(self, trj):
-        rospy.loginfo("Trajectory Received [size = %d]", len(trj.points))
-        trj = self.sync_time(trj)
-        self.print_trajectory(trj)
-        #self.new_traj_algo(trj)
-        trj = copy.deepcopy(self.speed_up_traj(trj))
-        self.print_trajectory(trj)
+    def trajectory_received(self, msg_trj):
+        rospy.loginfo("Trajectory Received [size = %d]", len(msg_trj.points))
+        msg_trj = self.sync_time(msg_trj)
+        self.print_trajectory(msg_trj)
+        # self.new_traj_algo(trj)
+        trj = copy.deepcopy(self.speed_up_traj(msg_trj))
+        self.print_trajectories(msg_trj, trj)
+
+        # rospy.logerr("Continue?")
+        # input()
 
         if len(trj.points) != 0:
             slices = int(math.ceil(len(trj.points) / self.splitNum)) + 1
