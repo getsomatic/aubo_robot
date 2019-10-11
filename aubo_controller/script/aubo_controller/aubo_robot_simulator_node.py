@@ -76,7 +76,7 @@ class AuboRobotSimulatorNode:
         self.last_tfs = rospy.rostime.Duration(0)
 
         self.joint_vel_lim = [2.0] * 6
-        self.joint_acc_lim = [1.7, 1.7, 10.0, 10.0, 10.0, 10.0]
+        self.joint_acc_lim = [1.7, 1.7, 1.7, 10.0, 10.0, 10.0]
 
         # Class lock for only 1 thread to use it at same time
         self.lock = threading.Lock()
@@ -367,9 +367,11 @@ class AuboRobotSimulatorNode:
     def check_trj_constraints(self, trj):
         for p in trj.points:
             for j in range(6):
-                if abs(p.velocities[j]) >= self.joint_vel_lim[j]: # or abs(p.accelerations[j]) >= 1.7:
+                if abs(p.velocities[j]) >= self.joint_vel_lim[j]:
                     rospy.logerr("[%d] vel[j] %f >= %f ", j, abs(p.velocities[j]), self.joint_vel_lim[j])
-                    rospy.logerr("[%d] acc[j] %f >= %f ", j, abs(p.accelerations[j]), 1.7)
+                    return False
+                if abs(p.accelerations[j]) >= self.joint_acc_lim[j]:
+                    rospy.logerr("[%d] acc[j] %f >= %f ", j, abs(p.accelerations[j]), self.joint_acc_lim[j])
                     return False
         return True
 
@@ -411,6 +413,7 @@ class AuboRobotSimulatorNode:
         return trajectory, self.check_trj_constraints(trajectory)
 
     def speed_up_traj(self, trj):
+        curr_time = rospy.Time.now()
         # 10 000 seconds
         first = 0.0
         last = 10000.0
@@ -424,7 +427,8 @@ class AuboRobotSimulatorNode:
             else:
                 first = mid
 
-        rospy.logwarn("Time: old=%f, new=%f", trj.points[-1].time_from_start.to_sec(), mid)
+        rospy.logerr("Time: old=%f, new=%f", trj.points[-1].time_from_start.to_sec(), mid)
+        rospy.logerr("Speeding up trajectory took %f seconds!", (rospy.Time.now() - curr_time).to_sec())
         return tmp_trj
 
     def new_traj_algo(self, trj):
