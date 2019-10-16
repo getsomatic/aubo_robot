@@ -305,7 +305,6 @@ class MotionControllerSimulator:
                             # rospy.loginfo('move to 1:' + str(intermediate_goal_point))
                             self._move_to(intermediate_goal_point, update_duration.to_sec())
                             self.joint_state_publisher()
-                            rospy.sleep(update_duration.to_sec())
 
                         # here need to do some adjustment to make the trajectory smoother
                         move_duration = current_goal_point.time_from_start.to_sec() - tt
@@ -313,7 +312,6 @@ class MotionControllerSimulator:
                 # rospy.loginfo('move to 2:' + str(current_goal_point))
                 self._move_to(current_goal_point, move_duration)
                 self.joint_state_publisher()
-                rospy.sleep(move_duration)
                 last_goal_point = copy.deepcopy(current_goal_point)
 
             except Exception as e:
