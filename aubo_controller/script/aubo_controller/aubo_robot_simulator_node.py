@@ -112,7 +112,8 @@ class AuboRobotSimulatorNode:
 
         # Subscribe to a joint trajectory
         rospy.loginfo("Creating joint trajectory subscriber")
-        self.joint_path_sub = rospy.Subscriber('joint_path_command', JointTrajectory, self.trajectory_received)
+        # self.joint_path_sub = rospy.Subscriber('joint_path_command', JointTrajectory, self.trajectory_received)
+        self.joint_path_sub = rospy.Subscriber('joint_path_command', JointTrajectory, self.trajectory_callback)
 
         # Subscribe to a joint trajectory
         rospy.loginfo("Enable Switch")
@@ -132,9 +133,9 @@ class AuboRobotSimulatorNode:
         rospy.loginfo("Clean up init")
         rospy.on_shutdown(self.motion_ctrl.shutdown)
 
-        self.exec_thread = threading.Thread(target=self.exec_loop())
-        self.exec_thread.daemon = True
-        self.exec_thread.start()
+        # self.exec_thread = threading.Thread(target=self.exec_loop())
+        # self.exec_thread.daemon = True
+        # self.exec_thread.start()
 
     """
     Service callback for GetRobotInfo() service. Returns fake information.
@@ -181,7 +182,7 @@ class AuboRobotSimulatorNode:
                     # self.joint_feedback_pub.publish(joint_fb_msg)
 
             except Exception as e:
-                rospy.loginfo('Unexpected exception in joint state publisher: %s', e)
+                rospy.logerr('Unexpected exception in joint state publisher: %s', e)
 
     """
     The robot status publisher publishes the current simulated robot status.
@@ -224,9 +225,9 @@ class AuboRobotSimulatorNode:
         vel = p.velocities
         pos = p.positions
         rospy.logwarn("time_from_start = %f", p.time_from_start.to_sec())
-        rospy.logwarn("pos=[%f, %f, %f, %f, %f, %f]", pos[0], pos[1], pos[2], pos[3], pos[4], pos[5])
+        # rospy.logwarn("pos=[%f, %f, %f, %f, %f, %f]", pos[0], pos[1], pos[2], pos[3], pos[4], pos[5])
         rospy.logwarn("vel=[%f, %f, %f, %f, %f, %f]", vel[0], vel[1], vel[2], vel[3], vel[4], vel[5])
-        rospy.logwarn("acc=[%f, %f, %f, %f, %f, %f]\n", acc[0], acc[1], acc[2], acc[3], acc[4], acc[5])
+        rospy.logwarn("acc=[%f, %f, %f, %f, %f, %f]", acc[0], acc[1], acc[2], acc[3], acc[4], acc[5])
 
     def print_trajectory(self, trj):
         c = 0
@@ -376,7 +377,6 @@ class AuboRobotSimulatorNode:
         return True
 
     def scale_trj(self, trj, time):
-        rospy.logwarn("Tring to scale with time = %f", time)
         trajectory = copy.deepcopy(trj)
         joint_dist = [0.0]
         joint_dist_max_index = [0]
@@ -408,60 +408,44 @@ class AuboRobotSimulatorNode:
                 v0 = copy.deepcopy(trajectory.points[i-1].velocities[j])
                 v1 = copy.deepcopy(trajectory.points[i].velocities[j])
                 acc[j] = (v1-v0) / delta_t
+                # rospy.loginfo("acc(%f)=(%f - %f) / %f", acc[j], v1, v0, delta_t)
             trajectory.points[i].accelerations = tuple(acc)
 
-        return trajectory, self.check_trj_constraints(trajectory)
+        constr = self.check_trj_constraints(trajectory)
+        rospy.logwarn("Tring to scale with time = %f [constraints satisfied = %d]", time, constr)
+        return trajectory, constr
 
     def speed_up_traj(self, trj):
-        curr_time = rospy.Time.now()
-        # 10 000 seconds
-        first = 0.0
-        last = 10000.0
-        mid = -1.0
-        tmp_trj = JointTrajectory()
-        while last - first > 0.001:
-            mid = (first+last)/2
-            tmp_trj, cons = self.scale_trj(trj, mid)
-            if cons:
-                last = mid
-            else:
-                first = mid
+        try:
+            curr_time = rospy.Time.now()
+            # 10 000 seconds
+            first = 0.0
+            last = 10000.0
+            mid = -1.0
 
-        rospy.logerr("Time: old=%f, new=%f", trj.points[-1].time_from_start.to_sec(), mid)
-        rospy.logerr("Speeding up trajectory took %f seconds!", (rospy.Time.now() - curr_time).to_sec())
-        return tmp_trj
+            cons = False
 
-    def new_traj_algo(self, trj):
-        joint_dist = [0.0]
-        joint_dist_max_index = [0]
+            tmp_trj = JointTrajectory()
+            result_trj = copy.deepcopy(trj)
+            while last - first > 0.001:
+                mid = (first+last)/2
+                tmp_trj, cons = self.scale_trj(trj, mid)
 
-        for i in range(len(trj.points)-1):
-            dist, idx = self.get_max_joint_dist(trj.points[i], trj.points[i+1])
-            joint_dist.append(dist)
-            joint_dist_max_index.append(idx)
+                if cons:
+                    last = mid
+                    result_trj = tmp_trj
+                else:
+                    first = mid
 
-        for i in range(1, len(joint_dist)):
-            rospy.logwarn("[%d] dist=%f (idx=%d)", i, joint_dist[i], joint_dist_max_index[i])
+            rospy.logerr("Time: old=%f, new=%f", trj.points[-1].time_from_start.to_sec(), mid)
+            rospy.logerr("Speeding up trajectory took %f seconds!", (rospy.Time.now() - curr_time).to_sec())
 
-        for i in range(1, len(trj.points)):
-            if trj.points[i].velocities[joint_dist_max_index[i]] != 0:
-                scale_v = self.joint_vel_lim[joint_dist_max_index[i]]/trj.points[i].velocities[joint_dist_max_index[i]]/5
-                scale_a = self.joint_vel_lim[joint_dist_max_index[i]]/trj.points[i].accelerations[joint_dist_max_index[i]]/5
+            return result_trj
 
-                vel = [0.0] * 6
-                for j in range(6):
-                    vel[j] = trj.points[i].velocities[j] * scale_v
-                trj.points[i].velocities = tuple(vel)
+        except Exception as e:
+            rospy.logerr('Unexpected exception in [speed_up_traj]: %s', e)
+            return trj
 
-                acc = [0.0] * 6
-                for j in range(6):
-                    acc[j] = trj.points[i].accelerations[j] * scale_a
-                trj.points[i].accelerations = tuple(acc)
-
-                # trj.points[i].time_from_start = rospy.rostime.Duration(trj.points[i].time_from_start.to_sec()*scale_v)
-
-
-        # return res
 
     # point = JointTrajectoryPoint()
     # point.velocities
@@ -474,11 +458,38 @@ class AuboRobotSimulatorNode:
     # trajectory.joint_names
     # trajectory.header
 
+    def trajectory_callback(self, msg_in):
+        if (len(msg_in.points) == 0) or (self.EnableFlag == 0):
+            # if the JointTrajectory is null or the robot is controlled by other controller.
+            pass
+        else:
+            rospy.logdebug('handle joint_path_command')
+            try:
+                rospy.loginfo('Received trajectory with %s points, executing callback', str(len(msg_in.points)))
+                #rospy.loginfo('Received trajectory %s ', str(msg_in.points))
+
+                #else:
+
+                self.velocity_scale_factor = rospy.get_param('/aubo_controller/velocity_scale_factor', 1.0)
+                rospy.loginfo('The velocity scale factor is: %s', str(self.velocity_scale_factor))
+                new_traj = scale_trajectory_speed(msg_in, self.velocity_scale_factor)
+                for point in new_traj.points:
+                    # first remaps point to controller joint order, the add the point to the controller.
+                    point = self._to_controller_order(msg_in.joint_names, point)
+                    self.motion_ctrl.add_motion_waypoint(point)
+                    #rospy.loginfo('Add new position: %s', str(point.positions))
+
+            except Exception as e:
+                rospy.logerr('Unexpected exception: %s', e)
+
+            rospy.logdebug('Exiting trajectory callback')
+
+
     # splits trajectory into chucks of N='self.splitNum' points, if possible
     def trajectory_received(self, msg_trj):
         rospy.loginfo("Trajectory Received [size = %d]", len(msg_trj.points))
         msg_trj = self.sync_time(msg_trj)
-        self.print_trajectory(msg_trj)
+        # self.print_trajectory(msg_trj)
         # self.new_traj_algo(trj)
         trj = copy.deepcopy(self.speed_up_traj(msg_trj))
         self.print_trajectories(msg_trj, trj)
@@ -504,11 +515,12 @@ class AuboRobotSimulatorNode:
     def exec_loop(self):
         while not self.motion_ctrl.sig_shutdown:
             # if self.motion_ctrl.is_in_motion() or self.EnableFlag == 0 or len(self.traj_list) == 0 or self.motion_ctrl.points_left() >= self.splitNum:
-            if self.EnableFlag == 0 or len(self.traj_list) == 0 or self.motion_ctrl.points_left() >= self.splitNum / 2:
+            if self.EnableFlag == 0 or len(self.traj_list) == 0 or self.motion_ctrl.points_left() >= self.splitNum:
+                rospy.sleep(0.01)
                 continue
-
-            rospy.loginfo('[aubo_robot_simulator_node/exec_loop] Executing...')
-            with self.lock:
+            try:
+                rospy.loginfo('[aubo_robot_simulator_node/exec_loop] Executing...')
+                # with self.lock:
                 msg_in = self.traj_list.pop(0)
 
                 if len(msg_in.points) > 0:
@@ -522,6 +534,7 @@ class AuboRobotSimulatorNode:
                     # if curr_traj.points[0].time_from_start < self.last_tfs:
                     #     for p in curr_traj.points:
                     #         p.time_from_start -= first_point_tfs
+
                     # self.print_trajectory(curr_traj)
 
                     for point in curr_traj.points:
@@ -531,6 +544,8 @@ class AuboRobotSimulatorNode:
                     # self.last_tfs = curr_traj.points[-1].time_from_start
                 else:
                     rospy.logerr('[aubo_robot_simulator_node/exec_loop] len(msg_in.points) == 0')
+            except Exception as e:
+                rospy.logerr('Unexpected exception in [exec_loop]: %s', e)
 
         rospy.logerr('[aubo_robot_simulator_node/exec_loop] Exiting (sig_shutdown)')
 

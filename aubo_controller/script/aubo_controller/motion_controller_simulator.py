@@ -196,7 +196,7 @@ class MotionControllerSimulator:
                 self.moveit_joint_state_pub.publish(joint_point_msg)
 
         except Exception as e:
-            rospy.loginfo('Unexpected exception in joint state publisher: %s', e)
+            rospy.logerr('Unexpected exception in joint state publisher: %s', e)
 
     """
     update the motion controller state combining with the robot controller information
@@ -317,7 +317,7 @@ class MotionControllerSimulator:
                 last_goal_point = copy.deepcopy(current_goal_point)
 
             except Exception as e:
-                rospy.logerr('Unexpected exception2: %s', e)
+                rospy.logerr('Unexpected exception in motion worker: %s', e)
 
             # if user want stop ,we will clear Trajectory buffer data from moveit
             if self.cancle_trajectory != 0:
