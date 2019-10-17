@@ -204,9 +204,9 @@ class MotionControllerSimulator:
 
     def _move_to(self, point, dur):
         while self.ribBufferSize > self.MinimumBufferSize:
-            print(self.ribBufferSize)
-            rospy.loginfo('too fast!!')
-            rospy.loginfo('The number of driver Buffer Data is big enough, not send this time: %d', self.ribBufferSize)
+            # print(self.ribBufferSize)
+            # rospy.loginfo('too fast!!')
+            # rospy.loginfo('The number of driver Buffer Data is big enough, not send this time: %d', self.ribBufferSize)
             rospy.sleep(dur)
 
         if self.ribBufferSize == 0 and self.ControllerConnectedFlag == 0:  # motion start or no robot connected!
