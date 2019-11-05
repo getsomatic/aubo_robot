@@ -179,7 +179,7 @@ class MotionControllerSimulator():
                 self.moveit_joint_state_pub.publish(joint_point_msg)
 
         except Exception as e:
-            rospy.loginfo('Unexpected exception in joint state publisher: %s', e)
+            rospy.logerr('Unexpected exception in joint state publisher: %s', e)
 
     """
     update the motion controller state combining with the robot controller information
@@ -411,7 +411,7 @@ class AuboRobotSimulatorNode():
                     # self.joint_feedback_pub.publish(joint_fb_msg)
 
             except Exception as e:
-                rospy.loginfo('Unexpected exception in joint state publisher: %s', e)
+                rospy.logerr('Unexpected exception in joint state publisher: %s', e)
 
     """
     The robot status publisher publishes the current simulated robot status.

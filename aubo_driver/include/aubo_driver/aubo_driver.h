@@ -45,7 +45,7 @@ double get_robot_one_io_status( our_contorl_io_type  io_type, our_contorl_io_mod
 #include "aubo_driver/serviceinterface.h"
 #include "sensor_msgs/JointState.h"
 #include <control_msgs/FollowJointTrajectoryFeedback.h>
-
+#include <std_msgs/Bool.h>
 #include "otg/otgnewslib.h"
 
 #define BufferQueueSize 2000
@@ -172,6 +172,7 @@ namespace aubo_driver
             ros::Publisher joint_target_pub_;
             ros::Publisher robot_status_pub_;
             ros::Publisher somatic_error_pub_;
+            ros::Subscriber somatic_collision_sub_;
             ros::Subscriber teach_subs_;
             ros::Subscriber moveAPI_subs_;
             ros::Subscriber moveit_controller_subs_;
@@ -186,6 +187,7 @@ namespace aubo_driver
             void AuboAPICallback(const std_msgs::Float32MultiArray::ConstPtr &msg);
             void teachCallback(const std_msgs::Float32MultiArray::ConstPtr &msg);
             void timerCallback(const ros::TimerEvent& e);
+            void collisionCallback(const std_msgs::Bool::ConstPtr msg);
             bool setRobotJointsByMoveIt();
             void controllerSwitchCallback(const std_msgs::Int32::ConstPtr &msg);
             void publishIOMsg();

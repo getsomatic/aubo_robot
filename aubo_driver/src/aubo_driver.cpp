@@ -73,6 +73,7 @@ AuboDriver::AuboDriver():buffer_size_(200),io_flag_delay_(0.02),data_recieved_(f
 
     /** subscribe topics **/
     trajectory_execution_subs_ = nh_.subscribe("trajectory_execution_event", 10, &AuboDriver::trajectoryExecutionCallback,this);
+    somatic_collision_sub_ = nh_.subscribe("/somatic/collision_recovery", 10, &AuboDriver::collisionCallback,this);
     robot_control_subs_ = nh_.subscribe("robot_control", 10, &AuboDriver::robotControlCallback,this);
     moveit_controller_subs_ = nh_.subscribe("moveItController_cmd", 2000, &AuboDriver::moveItPosCallback,this);
     teach_subs_ = nh_.subscribe("teach_cmd", 10, &AuboDriver::teachCallback,this);
@@ -139,6 +140,8 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
         /** maintain the ros-controller states from the ros environment **/
         setCurrentPosition(target_point_);
     }
+
+    if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) ROS_ERROR("Singularity");
 
     somatic_msgs::ArmError armError;
     armError.header = robot_status_.header;
@@ -785,6 +788,12 @@ bool AuboDriver::setIO(aubo_msgs::SetIORequest& req, aubo_msgs::SetIOResponse& r
         resp.success = false;
     }
     return resp.success;
+}
+
+void AuboDriver::collisionCallback(const std_msgs::Bool::ConstPtr msg) {
+    robot_send_service_.robotServiceCollisionRecover();
+    robot_send_service_.
+    ROS_WARN("Recovering From collision!");
 }
 
 }
