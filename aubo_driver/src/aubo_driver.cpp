@@ -813,9 +813,24 @@ void AuboDriver::TurnOnPower() {
 }
 
 void AuboDriver::testCallback(const std_msgs::Bool::ConstPtr &msg) {
-    ROS_ERROR("TEST1!");
-    TurnOnPower();
-    //robot_send_service_.robotServicePowerControl(true);
+    ROS_ERROR("TEST1! [%d]", msg->data);
+
+    aubo_robot_namespace::wayPoint_S wp;
+    robot_receive_service_.robotServiceGetCurrentWaypointInfo(wp);
+
+
+    double jp[6];
+    for (int i =0; i<6; i++){
+        jp[i] = wp.jointpos[i];
+    }
+
+    int ret = 0;
+    for (int i = 0; i<10; i++){
+        jp[1] += 0.01;
+        ret = robot_send_service_.robotServiceJointMove(jp, msg->data);
+        ROS_ERROR("RET=%s", robot_receive_service_.getErrDescByCode(ret));
+    }
+
 
     ROS_ERROR("TEST2!");
 }

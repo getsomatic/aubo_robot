@@ -161,6 +161,7 @@ public:
      * @param enable   true表示允许　　　false表示不允许
      * @return　调用成功返回ErrnoSucc;错误返回错误号
      */
+
     int robotServiceSetRealTimeJointStatusPush(bool enable);
 
 
