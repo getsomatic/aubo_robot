@@ -73,9 +73,11 @@ AuboDriver::AuboDriver():buffer_size_(200),io_flag_delay_(0.02),data_recieved_(f
 
     /** subscribe topics **/
     trajectory_execution_subs_ = nh_.subscribe("trajectory_execution_event", 10, &AuboDriver::trajectoryExecutionCallback,this);
-    somatic_collision_sub_ = nh_.subscribe("/somatic/collision_recovery", 10, &AuboDriver::collisionCallback,this);
+
+    somatic_collision_sub_ = nh_.subscribe("/somatic/collision_recovery", 10, &AuboDriver::collisionRecoveryCallback, this);
+
     robot_control_subs_ = nh_.subscribe("robot_control", 10, &AuboDriver::robotControlCallback,this);
-    moveit_controller_subs_ = nh_.subscribe("moveItController_cmd", 2000, &AuboDriver::moveItPosCallback,this);
+    moveit_controller_subs_ = nh_.subscribe("moveItController_cmd", 10000, &AuboDriver::moveItPosCallback,this);
     teach_subs_ = nh_.subscribe("teach_cmd", 10, &AuboDriver::teachCallback,this);
     moveAPI_subs_ = nh_.subscribe("moveAPI_cmd", 10, &AuboDriver::AuboAPICallback, this);
     controller_switch_sub_ = nh_.subscribe("/aubo_driver/controller_switch", 10, &AuboDriver::controllerSwitchCallback, this);
@@ -141,32 +143,34 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
         setCurrentPosition(target_point_);
     }
 
-    if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) ROS_ERROR("Singularity");
-
-    somatic_msgs::ArmError armError;
-    armError.header = robot_status_.header;
-    armError.e_stopped = robot_status_.e_stopped.val;
-    armError.in_error = robot_status_.in_error.val;
-    if (!rs.robot_diagnosis_info_.armPowerStatus) armError.error_codes.push_back(1);
-    if (!rs.robot_diagnosis_info_.remoteHalt) armError.error_codes.push_back(2);
-    if (rs.robot_diagnosis_info_.softEmergency) armError.error_codes.push_back(3);
-    if (rs.robot_diagnosis_info_.remoteEmergency) armError.error_codes.push_back(4);
-    if (rs.robot_diagnosis_info_.robotCollision) armError.error_codes.push_back(5);
-    if (rs.robot_diagnosis_info_.forceControlMode) armError.error_codes.push_back(6);
-    if (rs.robot_diagnosis_info_.brakeStuats) armError.error_codes.push_back(7);
-    if (rs.robot_diagnosis_info_.orpeStatus) armError.error_codes.push_back(8);
-    if (rs.robot_diagnosis_info_.enableReadPose) armError.error_codes.push_back(9);
-    if (rs.robot_diagnosis_info_.robotMountingPoseChanged) armError.error_codes.push_back(10);
-    if (rs.robot_diagnosis_info_.encoderErrorStatus) armError.error_codes.push_back(11);
-    if (rs.robot_diagnosis_info_.staticCollisionDetect) armError.error_codes.push_back(12);
-    if (rs.robot_diagnosis_info_.encoderLinesError) armError.error_codes.push_back(13);
-    if (rs.robot_diagnosis_info_.jointErrorStatus) armError.error_codes.push_back(14);
-    if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) armError.error_codes.push_back(15);
-    if (rs.robot_diagnosis_info_.robotCurrentAlarm) armError.error_codes.push_back(16);
-    if (rs.robot_diagnosis_info_.robotMountingPoseWarning) armError.error_codes.push_back(17);
-    if (armError.error_codes.empty()) armError.error_codes.push_back(0);
-
-    somatic_error_pub_.publish(armError);
+    if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) {
+        ROS_ERROR("Singularity [%d] [%d]", rib_buffer_size_, buf_queue_.getQueueSize());
+    }
+    {
+        somatic_msgs::ArmError armError;
+        armError.header = robot_status_.header;
+        armError.e_stopped = robot_status_.e_stopped.val;
+        armError.in_error = robot_status_.in_error.val;
+        if (!rs.robot_diagnosis_info_.armPowerStatus) armError.error_codes.push_back(1);
+        if (!rs.robot_diagnosis_info_.remoteHalt) armError.error_codes.push_back(2);
+        if (rs.robot_diagnosis_info_.softEmergency) armError.error_codes.push_back(3);
+        if (rs.robot_diagnosis_info_.remoteEmergency) armError.error_codes.push_back(4);
+        if (rs.robot_diagnosis_info_.robotCollision) armError.error_codes.push_back(5);
+        if (rs.robot_diagnosis_info_.forceControlMode) armError.error_codes.push_back(6);
+        if (rs.robot_diagnosis_info_.brakeStuats) armError.error_codes.push_back(7);
+        if (rs.robot_diagnosis_info_.orpeStatus) armError.error_codes.push_back(8);
+        if (rs.robot_diagnosis_info_.enableReadPose) armError.error_codes.push_back(9);
+        if (rs.robot_diagnosis_info_.robotMountingPoseChanged) armError.error_codes.push_back(10);
+        if (rs.robot_diagnosis_info_.encoderErrorStatus) armError.error_codes.push_back(11);
+        if (rs.robot_diagnosis_info_.staticCollisionDetect) armError.error_codes.push_back(12);
+        if (rs.robot_diagnosis_info_.encoderLinesError) armError.error_codes.push_back(13);
+        if (rs.robot_diagnosis_info_.jointErrorStatus) armError.error_codes.push_back(14);
+        if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) armError.error_codes.push_back(15);
+        if (rs.robot_diagnosis_info_.robotCurrentAlarm) armError.error_codes.push_back(16);
+        if (rs.robot_diagnosis_info_.robotMountingPoseWarning) armError.error_codes.push_back(17);
+        if (armError.error_codes.empty()) armError.error_codes.push_back(0);
+        somatic_error_pub_.publish(armError);
+    }
 
     robot_status_pub_.publish(robot_status_);
     rib_pub_.publish(rib_status_);
@@ -278,7 +282,7 @@ bool AuboDriver::setRobotJointsByMoveIt()
 {
     int ret = 0;
     // First check if the buf_queue_ is Empty
-    if(!buf_queue_.empty())
+    if(!buf_queue_.empty())// && rib_buffer_size_ < 10)
     {
         PlanningState ps = buf_queue_.deQueue();
 
@@ -304,6 +308,7 @@ bool AuboDriver::setRobotJointsByMoveIt()
                 {
                    resultValue = otgVelocityModeResult(1, jto);
                    double jointAngle[] = {jto.newPosition[0],jto.newPosition[1],jto.newPosition[2],jto.newPosition[3],jto.newPosition[4],jto.newPosition[5]};
+                    ROS_ERROR("PROTECTIVE/NORMAL!\n\n");
                    ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(jointAngle);
                    std::cout<<jointAngle[0]<<","<<jointAngle[1]<<","<<jointAngle[2]<<","<<jointAngle[3]<<","<<jointAngle[4]<<","<<jointAngle[5]<<","<<std::endl;
                 }
@@ -317,7 +322,8 @@ bool AuboDriver::setRobotJointsByMoveIt()
             }
             else
             {
-                ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
+                //ROS_ERROR("rib[%d], buf[%d]", rib_buffer_size_, buf_queue_.getQueueSize());
+                robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
             }
             //            struct timeb tb;
             //            ftime(&tb);
@@ -790,10 +796,9 @@ bool AuboDriver::setIO(aubo_msgs::SetIORequest& req, aubo_msgs::SetIOResponse& r
     return resp.success;
 }
 
-void AuboDriver::collisionCallback(const std_msgs::Bool::ConstPtr msg) {
+void AuboDriver::collisionRecoveryCallback(const std_msgs::Bool::ConstPtr &msg) {
     robot_send_service_.robotServiceCollisionRecover();
-    robot_send_service_.
-    ROS_WARN("Recovering From collision!");
+    ROS_ERROR("Recovering From collision!");
 }
 
 }

@@ -82,16 +82,17 @@ namespace aubo_driver
             ~BufQueue(){}    //析构函数
             bool empty()                          //判断队列是否为空
             {
-                if(front == rear)
-                    return true;
-                else
-                    return false;
+                return front == rear;
             }
 
             void enQueue(PlanningState x)
             {
                 if(((rear + 1) % BufferQueueSize) == front)             //判断队列是否已满
+                {
+                    ROS_ERROR("rib buffer is full");
                     deQueue();
+
+                }
 
                 rear = (rear + 1) % BufferQueueSize;             //移动尾指针指向下一个空间
                 buf[rear] = x;                        //元素x入队
@@ -187,7 +188,7 @@ namespace aubo_driver
             void AuboAPICallback(const std_msgs::Float32MultiArray::ConstPtr &msg);
             void teachCallback(const std_msgs::Float32MultiArray::ConstPtr &msg);
             void timerCallback(const ros::TimerEvent& e);
-            void collisionCallback(const std_msgs::Bool::ConstPtr msg);
+            void collisionRecoveryCallback(const std_msgs::Bool::ConstPtr &msg);
             bool setRobotJointsByMoveIt();
             void controllerSwitchCallback(const std_msgs::Int32::ConstPtr &msg);
             void publishIOMsg();
