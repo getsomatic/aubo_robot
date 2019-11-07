@@ -427,20 +427,13 @@ void AuboDriver::robotControlCallback(const std_msgs::String::ConstPtr &msg)
 {
     if(msg->data == "powerOn")
     {
-        int ret = aubo_robot_namespace::InterfaceCallSuccCode;
-        aubo_robot_namespace::ToolDynamicsParam toolDynamicsParam;
-        memset(&toolDynamicsParam, 0, sizeof(toolDynamicsParam));
-        aubo_robot_namespace::ROBOT_SERVICE_STATE result;
-        ret = robot_send_service_.rootServiceRobotStartup(toolDynamicsParam/**工具动力学参数**/,
-                                                   collision_class_        /*碰撞等级*/,
-                                                   true     /*是否允许读取位姿　默认为true*/,
-                                                   true,    /*保留默认为true */
-                                                   1000,    /*保留默认为1000 */
-                                                   result); /*机械臂初始化*/
-        if(ret == aubo_robot_namespace::InterfaceCallSuccCode)
-            ROS_INFO("Initial sucess.");
-        else
-            ROS_ERROR("Initial failed.");
+        TurnOnPower();
+    } else if(msg->data == "SingularityRec") {
+        robot_send_service_.robotServiceClearGlobalWayPointVector();
+        buf_queue_.clear();
+        aubo_robot_namespace::RobotControlCommand rc = aubo_robot_namespace::RobotControlCommand::ClearSingularityOverSpeedAlarm;
+        robot_send_service_.rootServiceRobotControl(rc);
+        TurnOnPower();
     }
 }
 
@@ -799,6 +792,23 @@ bool AuboDriver::setIO(aubo_msgs::SetIORequest& req, aubo_msgs::SetIOResponse& r
 void AuboDriver::collisionRecoveryCallback(const std_msgs::Bool::ConstPtr &msg) {
     robot_send_service_.robotServiceCollisionRecover();
     ROS_ERROR("Recovering From collision!");
+}
+
+void AuboDriver::TurnOnPower() {
+    int ret = aubo_robot_namespace::InterfaceCallSuccCode;
+    aubo_robot_namespace::ToolDynamicsParam toolDynamicsParam;
+    memset(&toolDynamicsParam, 0, sizeof(toolDynamicsParam));
+    aubo_robot_namespace::ROBOT_SERVICE_STATE result;
+    ret = robot_send_service_.rootServiceRobotStartup(toolDynamicsParam/**工具动力学参数**/,
+                                                      collision_class_        /*碰撞等级*/,
+                                                      true     /*是否允许读取位姿　默认为true*/,
+                                                      true,    /*保留默认为true */
+                                                      1000,    /*保留默认为1000 */
+                                                      result); /*机械臂初始化*/
+    if(ret == aubo_robot_namespace::InterfaceCallSuccCode)
+        ROS_INFO("Initial sucess.");
+    else
+        ROS_ERROR("Initial failed.");
 }
 
 }

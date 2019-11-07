@@ -48,7 +48,7 @@ double get_robot_one_io_status( our_contorl_io_type  io_type, our_contorl_io_mod
 #include <std_msgs/Bool.h>
 #include "otg/otgnewslib.h"
 
-#define BufferQueueSize 2000
+#define BufferQueueSize 4000
 #define ARM_DOF 6
 #define MAXALLOWEDDELAY 50
 #define server_port 8899
@@ -83,6 +83,10 @@ namespace aubo_driver
             bool empty()                          //判断队列是否为空
             {
                 return front == rear;
+            }
+
+            void clear() {
+                front = rear = 0;
             }
 
             void enQueue(PlanningState x)
@@ -192,6 +196,8 @@ namespace aubo_driver
             bool setRobotJointsByMoveIt();
             void controllerSwitchCallback(const std_msgs::Int32::ConstPtr &msg);
             void publishIOMsg();
+
+            void TurnOnPower();
 
             bool reverse_connected_;
             double last_recieve_point_[ARM_DOF];   /** To avoid joining the same waypoint to the queue **/
