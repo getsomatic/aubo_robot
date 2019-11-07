@@ -75,6 +75,8 @@ AuboDriver::AuboDriver():buffer_size_(200),io_flag_delay_(0.02),data_recieved_(f
     trajectory_execution_subs_ = nh_.subscribe("trajectory_execution_event", 10, &AuboDriver::trajectoryExecutionCallback,this);
 
     somatic_collision_sub_ = nh_.subscribe("/somatic/collision_recovery", 10, &AuboDriver::collisionRecoveryCallback, this);
+    somatic_launch_sub_ = nh_.subscribe("/somatic/launch", 10, &AuboDriver::launchCallback, this);
+    somatic_test_sub_ = nh_.subscribe("/somatic/test", 10, &AuboDriver::testCallback, this);
 
     robot_control_subs_ = nh_.subscribe("robot_control", 10, &AuboDriver::robotControlCallback,this);
     moveit_controller_subs_ = nh_.subscribe("moveItController_cmd", 10000, &AuboDriver::moveItPosCallback,this);
@@ -144,7 +146,7 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
     }
 
     if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) {
-        ROS_ERROR("Singularity [%d] [%d]", rib_buffer_size_, buf_queue_.getQueueSize());
+        ROS_ERROR("Singuarity [%d] [%d]", rib_buffer_size_, buf_queue_.getQueueSize());
     }
     {
         somatic_msgs::ArmError armError;
@@ -292,8 +294,7 @@ bool AuboDriver::setRobotJointsByMoveIt()
             {
                 //clear the buffer, there will be a jerk
                 start_move_ = false;
-                while(!buf_queue_.empty())
-                    buf_queue_.deQueue();
+                buf_queue_.clear();
             }
             else if(protective_stopped_ || normal_stopped_)
             {
@@ -314,8 +315,7 @@ bool AuboDriver::setRobotJointsByMoveIt()
                 }
                 //clear the buffer
                 start_move_ = false;
-                while(!buf_queue_.empty())
-                    buf_queue_.deQueue();
+                buf_queue_.clear();
                 //clear the flag
                 if(normal_stopped_)
                     normal_stopped_ = false;
@@ -396,7 +396,7 @@ void AuboDriver::moveItPosCallback(const trajectory_msgs::JointTrajectoryPoint::
         {
             //            data_recieved_ = true;
             ROS_DEBUG("Add new waypoint to the buffer.");
-            data_count_ = 0;
+            //data_count_ = 0;
             PlanningState ps;
             memcpy(ps.joint_pos_, jointAngle, sizeof(double) * ARM_DOF);
             memcpy(ps.joint_vel_, &msg->velocities[0], sizeof(double) * ARM_DOF);
@@ -409,6 +409,7 @@ void AuboDriver::moveItPosCallback(const trajectory_msgs::JointTrajectoryPoint::
     }
     else
     {
+        ROS_ERROR("SET TARGET POS");
         setTagrtPosition(jointAngle);
         rib_buffer_size_ = 0;
     }
@@ -809,6 +810,18 @@ void AuboDriver::TurnOnPower() {
         ROS_INFO("Initial sucess.");
     else
         ROS_ERROR("Initial failed.");
+}
+
+void AuboDriver::testCallback(const std_msgs::Bool::ConstPtr &msg) {
+    ROS_ERROR("TEST1!");
+    TurnOnPower();
+    //robot_send_service_.robotServicePowerControl(true);
+
+    ROS_ERROR("TEST2!");
+}
+
+void AuboDriver::launchCallback(const std_msgs::Bool::ConstPtr &msg) {
+    TurnOnPower();
 }
 
 }

@@ -48,7 +48,7 @@ double get_robot_one_io_status( our_contorl_io_type  io_type, our_contorl_io_mod
 #include <std_msgs/Bool.h>
 #include "otg/otgnewslib.h"
 
-#define BufferQueueSize 4000
+#define BufferQueueSize 8000
 #define ARM_DOF 6
 #define MAXALLOWEDDELAY 50
 #define server_port 8899
@@ -176,8 +176,12 @@ namespace aubo_driver
             ros::Publisher joint_feedback_pub_;
             ros::Publisher joint_target_pub_;
             ros::Publisher robot_status_pub_;
+
             ros::Publisher somatic_error_pub_;
             ros::Subscriber somatic_collision_sub_;
+            ros::Subscriber somatic_test_sub_;
+            ros::Subscriber somatic_launch_sub_;
+
             ros::Subscriber teach_subs_;
             ros::Subscriber moveAPI_subs_;
             ros::Subscriber moveit_controller_subs_;
@@ -196,8 +200,10 @@ namespace aubo_driver
             bool setRobotJointsByMoveIt();
             void controllerSwitchCallback(const std_msgs::Int32::ConstPtr &msg);
             void publishIOMsg();
-
             void TurnOnPower();
+
+            void testCallback(const std_msgs::Bool::ConstPtr &msg);
+            void launchCallback(const std_msgs::Bool::ConstPtr &msg);
 
             bool reverse_connected_;
             double last_recieve_point_[ARM_DOF];   /** To avoid joining the same waypoint to the queue **/
