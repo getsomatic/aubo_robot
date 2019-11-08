@@ -65,7 +65,7 @@ class MotionControllerSimulator():
     def __init__(self, num_joints, update_rate = 200, buffer_size = 0):
         # Class lock
         self.lock = threading.Lock()
-        self.cancle_trajectory = 0;
+        self.cancle_trajectory = 0
 
         # Motion loop update rate (higher update rates result in smoother simulated motion)
         self.update_rate = update_rate
@@ -106,7 +106,7 @@ class MotionControllerSimulator():
         self.update_joint_state_subs = rospy.Subscriber('/aubo_driver/real_pose', Float32MultiArray, self.update_joint_state_callback)
         self.Is_cancel_trajectory_subs = rospy.Subscriber('aubo_driver/cancel_trajectory', UInt8, self.Is_cancel_trajectory_callback)
 
-        self.MinimumBufferSize = 800
+        self.MinimumBufferSize = 3800
         # Shutdown signal
         self.sig_shutdown = False
 
@@ -197,9 +197,9 @@ class MotionControllerSimulator():
     """
     def _move_to(self, point, dur):
         while self.ribBufferSize > self.MinimumBufferSize:
-            print(self.ribBufferSize)
-            rospy.loginfo('too fast!!')
-            rospy.loginfo('The number of driver Buffer Data is big enough, not send this time: %d', self.ribBufferSize)
+            # print(self.ribBufferSize)
+            # rospy.loginfo('too fast!!')
+            # rospy.loginfo('The number of driver Buffer Data is big enough, not send this time: %d', self.ribBufferSize)
             rospy.sleep(dur)
 
         if self.ribBufferSize == 0 and self.ControllerConnectedFlag == 0:      # motion start or no robot connected!

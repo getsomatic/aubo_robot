@@ -189,6 +189,12 @@ namespace aubo_driver
             int collision_class_;
             std_msgs::Int32MultiArray rib_status_;
             industrial_msgs::RobotStatus robot_status_;
+
+            double last_joint_pos[6];
+            double max_joint_pos[6];
+            ros::Time max_time[6];
+            ros::Time prevTime_;
+            int pointcount_ = 0;
     };
 }
 

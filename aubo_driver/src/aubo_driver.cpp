@@ -45,6 +45,8 @@ AuboDriver::AuboDriver(int num = 0):buffer_size_(400),io_flag_delay_(0.02),data_
     /** initialize the parameters **/
     for(int i = 0; i < axis_number_; i++)
     {
+        max_joint_pos[i] = 0.0;
+        last_joint_pos[i] = 0.0;
         current_joints_[i] = 0;
         target_point_[i] = 0;
         if(i < 3)
@@ -91,6 +93,8 @@ AuboDriver::AuboDriver(int num = 0):buffer_size_(400),io_flag_delay_(0.02),data_
     teach_subs_ = nh_.subscribe("teach_cmd", 10, &AuboDriver::teachCallback,this);
     moveAPI_subs_ = nh_.subscribe("moveAPI_cmd", 10, &AuboDriver::AuboAPICallback, this);
     controller_switch_sub_ = nh_.subscribe("/aubo_driver/controller_switch", 10, &AuboDriver::controllerSwitchCallback, this);
+
+    prevTime_ = ros::Time::now();
 }
 
 AuboDriver::~AuboDriver()
@@ -156,7 +160,8 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
     }
 
     if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) {
-        ROS_ERROR("Singuarity [%d] [%d]", rib_buffer_size_, buf_queue_.getQueueSize());
+        ROS_ERROR("MAC = [%d, %d, %d]; PCS = %d", rs.robot_diagnosis_info_.macDataInterruptWarning, rs.robot_diagnosis_info_.macTargetPosBufferSize, rs.robot_diagnosis_info_.macTargetPosDataSize, pointcount_);
+        ROS_ERROR("Singuarity [%d] [%ld]", rib_buffer_size_, buf_queue_.size());
     }
     {
         somatic_msgs::ArmError armError;
@@ -343,7 +348,44 @@ bool AuboDriver::setRobotJointsByMoveIt()
             }
             else
             {
-                ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
+                auto ctime = ros::Time::now();
+                double diff = ctime.toSec() - prevTime_.toSec();
+
+                if ( diff >= 1 ) {
+                    prevTime_ = ctime;
+                    pointcount_ -= int(diff * 365);
+                    if (pointcount_ < 0) {
+                        pointcount_ = 0;
+                    }
+                    ROS_ERROR("Diff > 2[%f], pc=%d", diff, pointcount_);
+                }
+
+                if (pointcount_ < 350){
+                    pointcount_++;
+                    ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
+                }
+
+
+                /*int xx = false;
+                if (fabs(last_joint_pos[0]) > 0.0){
+                    for (int i = 0; i<6; i++){
+                        if (fabs(last_joint_pos[i] - ps.joint_pos_[i]) > max_joint_pos[i]){
+                            max_joint_pos[i] = fabs(last_joint_pos[i] - ps.joint_pos_[i]);
+                            max_time[i] = ctime;
+                            xx = true;
+                        }
+                    }
+                }
+
+                if (xx){
+                    ROS_ERROR("Prevxxx [%f, %f, %f, %f, %f, %f]", last_joint_pos[0], last_joint_pos[1], last_joint_pos[2], last_joint_pos[3], last_joint_pos[4],last_joint_pos[5]);
+                    ROS_ERROR("Current [%f, %f, %f, %f, %f, %f]\n", ps.joint_pos_[0], ps.joint_pos_[1], ps.joint_pos_[2], ps.joint_pos_[3], ps.joint_pos_[4], ps.joint_pos_[5]);
+                }
+
+                for (int i = 0; i<6; i++){
+                    last_joint_pos[i] = ps.joint_pos_[i];
+                }*/
+
             }
 #ifdef LOG_INFO_DEBUG
             //            struct timeb tb;
@@ -453,7 +495,8 @@ void AuboDriver::robotControlCallback(const std_msgs::String::ConstPtr &msg)
         TurnOnPower();
     } else if(msg->data == "SingularityRec") {
         robot_send_service_.robotServiceClearGlobalWayPointVector();
-        buf_queue_.clear();
+        while(!buf_queue_.empty())
+            buf_queue_.pop();
         aubo_robot_namespace::RobotControlCommand rc = aubo_robot_namespace::RobotControlCommand::ClearSingularityOverSpeedAlarm;
         robot_send_service_.rootServiceRobotControl(rc);
         TurnOnPower();
@@ -832,55 +875,6 @@ bool AuboDriver::setIO(aubo_msgs::SetIORequest& req, aubo_msgs::SetIOResponse& r
     return resp.success;
 }
 
-void AuboDriver::collisionRecoveryCallback(const std_msgs::Bool::ConstPtr &msg) {
-    robot_send_service_.robotServiceCollisionRecover();
-    ROS_ERROR("Recovering From collision!");
-}
-
-void AuboDriver::TurnOnPower() {
-    int ret = aubo_robot_namespace::InterfaceCallSuccCode;
-    aubo_robot_namespace::ToolDynamicsParam toolDynamicsParam;
-    memset(&toolDynamicsParam, 0, sizeof(toolDynamicsParam));
-    aubo_robot_namespace::ROBOT_SERVICE_STATE result;
-    ret = robot_send_service_.rootServiceRobotStartup(toolDynamicsParam/**工具动力学参数**/,
-                                                      collision_class_        /*碰撞等级*/,
-                                                      true     /*是否允许读取位姿　默认为true*/,
-                                                      true,    /*保留默认为true */
-                                                      1000,    /*保留默认为1000 */
-                                                      result); /*机械臂初始化*/
-    if(ret == aubo_robot_namespace::InterfaceCallSuccCode)
-        ROS_INFO("Initial sucess.");
-    else
-        ROS_ERROR("Initial failed.");
-}
-
-void AuboDriver::testCallback(const std_msgs::Bool::ConstPtr &msg) {
-    ROS_ERROR("TEST1! [%d]", msg->data);
-
-    aubo_robot_namespace::wayPoint_S wp;
-    robot_receive_service_.robotServiceGetCurrentWaypointInfo(wp);
-
-
-    double jp[6];
-    for (int i =0; i<6; i++){
-        jp[i] = wp.jointpos[i];
-    }
-
-    int ret = 0;
-    for (int i = 0; i<10; i++){
-        jp[1] += 0.01;
-        ret = robot_send_service_.robotServiceJointMove(jp, msg->data);
-        ROS_ERROR("RET=%s", robot_receive_service_.getErrDescByCode(ret));
-    }
-
-
-    ROS_ERROR("TEST2!");
-}
-
-void AuboDriver::launchCallback(const std_msgs::Bool::ConstPtr &msg) {
-    TurnOnPower();
-}
-
 bool AuboDriver::getFK(aubo_msgs::GetFKRequest& req, aubo_msgs::GetFKResponse& resp)
 {
     aubo_robot_namespace::wayPoint_S wayPoint;
@@ -911,6 +905,45 @@ bool AuboDriver::getIK(aubo_msgs::GetIKRequest& req, aubo_msgs::GetIKResponse& r
     resp.joint.push_back(wayPoint.jointpos[4]);
     resp.joint.push_back(wayPoint.jointpos[5]);
 }
+
+void AuboDriver::collisionRecoveryCallback(const std_msgs::Bool::ConstPtr &msg) {
+    robot_send_service_.robotServiceCollisionRecover();
+    ROS_ERROR("Recovering From collision!");
+}
+
+void AuboDriver::TurnOnPower() {
+    int ret = aubo_robot_namespace::InterfaceCallSuccCode;
+    aubo_robot_namespace::ToolDynamicsParam toolDynamicsParam;
+    memset(&toolDynamicsParam, 0, sizeof(toolDynamicsParam));
+    aubo_robot_namespace::ROBOT_SERVICE_STATE result;
+    ret = robot_send_service_.rootServiceRobotStartup(toolDynamicsParam/**工具动力学参数**/,
+                                                      collision_class_        /*碰撞等级*/,
+                                                      true     /*是否允许读取位姿　默认为true*/,
+                                                      true,    /*保留默认为true */
+                                                      1000,    /*保留默认为1000 */
+                                                      result); /*机械臂初始化*/
+    if(ret == aubo_robot_namespace::InterfaceCallSuccCode)
+        ROS_INFO("Initial sucess.");
+    else
+        ROS_ERROR("Initial failed.");
+}
+
+void AuboDriver::testCallback(const std_msgs::Bool::ConstPtr &msg) {
+    ROS_ERROR("TEST1! [%d]", msg->data);
+
+    for (int i = 0; i<6; i++){
+        ROS_ERROR("pos=[%lf], time=[%f]", max_joint_pos[i], max_time[i].toSec());
+    }
+    ROS_ERROR("PC = %d", pointcount_);
+
+
+    ROS_ERROR("TEST2!");
+}
+
+void AuboDriver::launchCallback(const std_msgs::Bool::ConstPtr &msg) {
+    TurnOnPower();
+}
+
 
 }
 
