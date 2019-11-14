@@ -1,7 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
-    <generated />
+    <generated>
+      <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_lisp" />
+      <config projectName="aubo_driver" targetName="std_msgs_generate_messages_cpp" />
+      <config projectName="aubo_driver" targetName="roscpp_generate_messages_eus" />
+      <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_py" />
+      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_nodejs" />
+      <config projectName="aubo_driver" targetName="std_msgs_generate_messages_lisp" />
+      <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_eus" />
+      <config projectName="aubo_driver" targetName="clean_test_results" />
+      <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_nodejs" />
+      <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_cpp" />
+      <config projectName="aubo_driver" targetName="roscpp_generate_messages_py" />
+      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_cpp" />
+      <config projectName="aubo_driver" targetName="testAuboAPI" />
+      <config projectName="aubo_driver" targetName="std_msgs_generate_messages_nodejs" />
+      <config projectName="aubo_driver" targetName="doxygen" />
+      <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_lisp" />
+      <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_nodejs" />
+      <config projectName="aubo_driver" targetName="roscpp_generate_messages_cpp" />
+      <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_nodejs" />
+      <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_eus" />
+      <config projectName="aubo_driver" targetName="run_tests" />
+      <config projectName="aubo_driver" targetName="tests" />
+      <config projectName="aubo_driver" targetName="roscpp_generate_messages_nodejs" />
+      <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_py" />
+      <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_eus" />
+      <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_py" />
+      <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_java" />
+      <config projectName="aubo_driver" targetName="download_extra_data" />
+      <config projectName="aubo_driver" targetName="aubo_driver" />
+      <config projectName="aubo_driver" targetName="roscpp_generate_messages_lisp" />
+      <config projectName="aubo_driver" targetName="std_msgs_generate_messages_eus" />
+      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_py" />
+      <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_cpp" />
+      <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_cpp" />
+      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_java" />
+      <config projectName="aubo_driver" targetName="testIO" />
+      <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_cpp" />
+      <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_lisp" />
+      <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_eus" />
+      <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_lisp" />
+      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_eus" />
+      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_lisp" />
+      <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_py" />
+      <config projectName="aubo_driver" targetName="aubo_gazebo_driver" />
+      <config projectName="aubo_driver" targetName="std_msgs_generate_messages_py" />
+      <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_nodejs" />
+    </generated>
   </component>
   <component name="CMakeSettings">
     <configurations>
@@ -10,254 +57,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11bd57c4-68ec-4077-b133-5d05c5f9aecd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UpdateMoveitLib/Kinetic/Update.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UpdateMoveitLib/Kinetic/libmoveit_trajectory_processing.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UpdateMoveitLib/Kinetic/libmoveit_trajectory_processing.so.0.9.15" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_demo/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_demo/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_demo/launch/MoveGroupInterface_To_Indigo.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_demo/launch/MoveGroupInterface_To_Kinetic.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_demo/package.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_demo/src/AuboTest_kinematic_kinetic.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_demo/src/AuboTest_kinetic.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_demo/src/MoveGroupInterface_To_Indigo.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_demo/src/MoveGroupInterface_To_Kinetic.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/base_link.DAE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/base_link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/foreArm_Link.DAE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/foreArm_Link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/shoulder_Link.DAE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/shoulder_Link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/upperArm_Link.DAE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/upperArm_Link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/wrist1_Link.DAE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/wrist1_Link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/wrist2_Link.DAE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/wrist2_Link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/wrist3_Link.DAE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i10/wrist3_Link.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/meshes/aubo_i5/collision/pedestal.STL" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_description/urdf/aubo_i10.urdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/aubocontroller/libauborobotcontroller.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/aubocontroller/libauborobotcontroller.so.1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/aubocontroller/libauborobotcontroller.so.1.3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/aubocontroller/libauborobotcontroller.so.1.3.1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig++.a" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig++.la" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig++.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig++.so.11" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig++.so.11.0.2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig.a" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig.la" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig.so.11" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig.so.11.0.2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig.so.9" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/config/libconfig.so.9.2.0" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/log4cplus/liblog4cplus-1.2.so.5" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/log4cplus/liblog4cplus-1.2.so.5.1.4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/log4cplus/liblog4cplus.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_driver/src/aubo_gazebo_driver.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/config/aubo_i10_gazebo_control.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/config/aubo_i3_gazebo_control.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/config/aubo_i5_gazebo_control.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/launch/aubo_i10_gazebo_control.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/launch/aubo_i3_gazebo_control.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/launch/aubo_i5_gazebo_control.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/package.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/urdf/aubo_i10.xacro" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/urdf/aubo_i3.xacro" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_gazebo/urdf/aubo_i5.xacro" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/.setup_assistant" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/aubo_i10.srdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/chomp_planning.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/controllers.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/fake_controllers.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/joint_limits.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/joint_names.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/kinematics.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/ompl_planning.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/ros_controllers.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/config/sensors_3d.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/aubo_i10_moveit_controller_manager.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/aubo_i10_moveit_sensor_manager.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/chomp_planning_pipeline.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/default_warehouse_db.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/demo.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/fake_moveit_controller_manager.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/joystick_control.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/move_group.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/moveit.rviz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/moveit_planning_execution.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/moveit_rviz.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/ompl_planning_pipeline.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/planning_context.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/planning_pipeline.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/ros_controllers.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/run_benchmark_ompl.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/sensor_manager.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/setup_assistant.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/trajectory_execution.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/warehouse.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/launch/warehouse_settings.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i10_moveit_config/package.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/config/chomp_planning.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/config/ros_controllers.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/config/sensors_3d.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/chomp_planning_pipeline.launch.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/ros_controllers.launch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_kinematics/CHANGELOG.rst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_kinematics/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_kinematics/aubo_moveit_plugins.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_kinematics/include/aubo_kinematics/aubo_moveit_plugin.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_kinematics/include/aubo_kinematics/kinematics.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_kinematics/package.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_kinematics/src/aubo_moveit_plugin.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_kinematics/src/kinematics.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_msgs/srv/GetFK.srv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aubo_msgs/srv/GetIK.srv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/aubo_robot.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_controller/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_controller/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aubo_controller/script/aubo_controller/aubo_robot_simulator" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_controller/script/aubo_controller/aubo_robot_simulator" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_controller/src/aubo_robot_simulator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_controller/src/aubo_robot_simulator.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_controller/src/joint_trajectory_action.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_controller/src/joint_trajectory_action.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_description/urdf/aubo_i3.urdf" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_description/urdf/aubo_i3.urdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/AuboRobotMetaType.h" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/AuboRobotMetaType.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/aubo_driver.h" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/aubo_driver.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/otg/OTGStep2.h" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/otg/OTGStep2.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/otg/OtgType3Com.h" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/otg/OtgType3Com.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/otg/otgnewslib.h" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/otg/otgnewslib.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/serviceinterface.h" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/serviceinterface.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/lib/lib32/libotgLib.a" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/lib/lib32/libotgLib.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/lib/lib64/libauborobotcontroller.a" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/aubocontroller/libauborobotcontroller.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/lib/lib64/libauborobotcontroller.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/lib/lib64/libauborobotcontroller.so.1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/lib/lib64/libauborobotcontroller.so.1.0" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/lib/lib64/libauborobotcontroller.so.1.0.5" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/lib/lib64/libotgLib.a" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/lib/lib64/libotgLib.a" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aubo_driver/src/aubo_driver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/src/aubo_driver.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/src/driver_node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/src/driver_node.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/src/testAuboAPI.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/src/testAuboAPI.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/src/testIO.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/src/testIO.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i3_moveit_config/config/aubo_i3.srdf" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i3_moveit_config/config/aubo_i3.srdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i3_moveit_config/config/fake_controllers.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i3_moveit_config/config/fake_controllers.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i3_moveit_config/config/joint_limits.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i3_moveit_config/config/joint_limits.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i3_moveit_config/config/kinematics.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i3_moveit_config/config/kinematics.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i3_moveit_config/config/ompl_planning.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i3_moveit_config/config/ompl_planning.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i3_moveit_config/launch/aubo_i3_moveit_controller_manager.launch.xml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i3_moveit_config/launch/aubo_i3_moveit_controller_manager.launch.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i3_moveit_config/launch/ompl_planning_pipeline.launch.xml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i3_moveit_config/launch/ompl_planning_pipeline.launch.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i3_moveit_config/launch/planning_context.launch" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i3_moveit_config/launch/planning_context.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/.setup_assistant" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/.setup_assistant" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/CHANGELOG.rst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/config/aubo_i5.srdf" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/config/aubo_i5.srdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/config/joint_limits.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/config/joint_limits.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/config/kinematics.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/config/kinematics.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/config/ompl_planning.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/config/ompl_planning.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/demo.launch" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/demo.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/joystick_control.launch" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/joystick_control.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/move_group.launch" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/move_group.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/moveit.rviz" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/moveit.rviz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/moveit_rviz.launch" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/moveit_rviz.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/ompl_planning_pipeline.launch.xml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/ompl_planning_pipeline.launch.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/planning_context.launch" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/planning_context.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/planning_pipeline.launch.xml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/planning_pipeline.launch.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/run_benchmark_ompl.launch" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/run_benchmark_ompl.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/sensor_manager.launch.xml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/sensor_manager.launch.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/setup_assistant.launch" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/setup_assistant.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/trajectory_execution.launch.xml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/trajectory_execution.launch.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/warehouse.launch" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/warehouse.launch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/warehouse_settings.launch.xml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/launch/warehouse_settings.launch.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_i5_moveit_config/package.xml" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_i5_moveit_config/package.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_msgs/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_msgs/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_planner/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_planner/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_planner/src/aubo_planner_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_planner/src/aubo_planner_test.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_planner/src/aubo_ros_plan.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_planner/src/aubo_ros_plan.cpp" afterDir="false" />
     </list>
-    <ignored path="aubo_description/cmake-build-debug/" />
-    <ignored path="aubo_controller/.idea/" />
-    <ignored path="aubo_controller/cmake-build-debug/" />
-    <ignored path="aubo_description/.idea/aubo_description.iml" />
-    <ignored path="aubo_description/.idea/encodings.xml" />
-    <ignored path="aubo_description/.idea/misc.xml" />
-    <ignored path="aubo_description/.idea/modules.xml" />
-    <ignored path="aubo_description/.idea/vcs.xml" />
-    <ignored path="aubo_description/.idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/aubo_controller/script/aubo_controller/aubo_robot_simulator">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-120">
-              <caret line="127" selection-start-line="127" selection-end-line="127" />
-              <folding>
-                <element signature="e#1631#1643#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/aubo_i5_moveit_config/launch/ros_controllers.launch">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/aubo_driver/src/aubo_driver.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3750">
-              <caret line="288" column="5" selection-start-line="288" selection-start-column="5" selection-end-line="288" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/aubo_driver/include/aubo_driver/aubo_driver.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1740">
-              <caret line="116" column="34" selection-start-line="116" selection-start-column="34" selection-end-line="116" selection-end-column="34" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="lg609-master" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/aubo_driver/src/aubo_driver.cpp" />
-        <option value="$PROJECT_DIR$/aubo_controller/script/aubo_controller/aubo_robot_simulator" />
-      </list>
-    </option>
-  </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectConfigurationFiles">
     <option name="files">
       <list>
@@ -265,23 +89,13 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1985" />
-    <option name="y" value="-4" />
-    <option name="width" value="1855" />
-    <option name="height" value="1084" />
-  </component>
-  <component name="ProjectView">
-    <navigator proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane" />
-    </panes>
+  <component name="ProjectId" id="1TICMiRvDZnT9mhkyGs5Tyv8Qt9" />
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -294,6 +108,286 @@
         </RuleState>
       </list>
     </option>
+  </component>
+  <component name="RunManager" selected="CMake Application.aubo_driver">
+    <configuration name="aubo_driver" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="aubo_driver" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="aubo_driver" RUN_TARGET_NAME="aubo_driver">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="aubo_gazebo_driver" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="aubo_gazebo_driver" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="aubo_driver" RUN_TARGET_NAME="aubo_gazebo_driver">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="aubo_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="aubo_msgs_generate_messages_cpp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="aubo_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="aubo_msgs_generate_messages_eus" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="aubo_msgs_generate_messages_java" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="aubo_msgs_generate_messages_java" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="aubo_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="aubo_msgs_generate_messages_lisp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="aubo_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="aubo_msgs_generate_messages_nodejs" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="aubo_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="aubo_msgs_generate_messages_py" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="clean_test_results" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="clean_test_results" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="download_extra_data" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="download_extra_data" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="doxygen" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="doxygen" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="geometry_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="geometry_msgs_generate_messages_cpp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="geometry_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="geometry_msgs_generate_messages_eus" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="geometry_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="geometry_msgs_generate_messages_lisp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="geometry_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="geometry_msgs_generate_messages_nodejs" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="geometry_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="geometry_msgs_generate_messages_py" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="roscpp_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="roscpp_generate_messages_cpp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="roscpp_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="roscpp_generate_messages_eus" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="roscpp_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="roscpp_generate_messages_lisp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="roscpp_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="roscpp_generate_messages_nodejs" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="roscpp_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="roscpp_generate_messages_py" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="rosgraph_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="rosgraph_msgs_generate_messages_cpp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="rosgraph_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="rosgraph_msgs_generate_messages_eus" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="rosgraph_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="rosgraph_msgs_generate_messages_lisp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="rosgraph_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="rosgraph_msgs_generate_messages_nodejs" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="rosgraph_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="rosgraph_msgs_generate_messages_py" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="run_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="run_tests" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sensor_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="sensor_msgs_generate_messages_cpp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sensor_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="sensor_msgs_generate_messages_eus" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sensor_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="sensor_msgs_generate_messages_lisp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sensor_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="sensor_msgs_generate_messages_nodejs" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sensor_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="sensor_msgs_generate_messages_py" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="somatic_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="somatic_msgs_generate_messages_cpp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="somatic_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="somatic_msgs_generate_messages_eus" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="somatic_msgs_generate_messages_java" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="somatic_msgs_generate_messages_java" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="somatic_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="somatic_msgs_generate_messages_lisp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="somatic_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="somatic_msgs_generate_messages_nodejs" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="somatic_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="somatic_msgs_generate_messages_py" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="std_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="std_msgs_generate_messages_cpp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="std_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="std_msgs_generate_messages_eus" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="std_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="std_msgs_generate_messages_lisp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="std_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="std_msgs_generate_messages_nodejs" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="std_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="std_msgs_generate_messages_py" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="testAuboAPI" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="testAuboAPI" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="aubo_driver" RUN_TARGET_NAME="testAuboAPI">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="testIO" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="testIO" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="aubo_driver" RUN_TARGET_NAME="testIO">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aubo_driver" TARGET_NAME="tests" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.aubo_driver" />
+      <item itemvalue="CMake Application.aubo_gazebo_driver" />
+      <item itemvalue="CMake Application.aubo_msgs_generate_messages_cpp" />
+      <item itemvalue="CMake Application.aubo_msgs_generate_messages_eus" />
+      <item itemvalue="CMake Application.aubo_msgs_generate_messages_java" />
+      <item itemvalue="CMake Application.aubo_msgs_generate_messages_lisp" />
+      <item itemvalue="CMake Application.aubo_msgs_generate_messages_nodejs" />
+      <item itemvalue="CMake Application.aubo_msgs_generate_messages_py" />
+      <item itemvalue="CMake Application.clean_test_results" />
+      <item itemvalue="CMake Application.download_extra_data" />
+      <item itemvalue="CMake Application.doxygen" />
+      <item itemvalue="CMake Application.geometry_msgs_generate_messages_cpp" />
+      <item itemvalue="CMake Application.geometry_msgs_generate_messages_eus" />
+      <item itemvalue="CMake Application.geometry_msgs_generate_messages_lisp" />
+      <item itemvalue="CMake Application.geometry_msgs_generate_messages_nodejs" />
+      <item itemvalue="CMake Application.geometry_msgs_generate_messages_py" />
+      <item itemvalue="CMake Application.roscpp_generate_messages_cpp" />
+      <item itemvalue="CMake Application.roscpp_generate_messages_eus" />
+      <item itemvalue="CMake Application.roscpp_generate_messages_lisp" />
+      <item itemvalue="CMake Application.roscpp_generate_messages_nodejs" />
+      <item itemvalue="CMake Application.roscpp_generate_messages_py" />
+      <item itemvalue="CMake Application.rosgraph_msgs_generate_messages_cpp" />
+      <item itemvalue="CMake Application.rosgraph_msgs_generate_messages_eus" />
+      <item itemvalue="CMake Application.rosgraph_msgs_generate_messages_lisp" />
+      <item itemvalue="CMake Application.rosgraph_msgs_generate_messages_nodejs" />
+      <item itemvalue="CMake Application.rosgraph_msgs_generate_messages_py" />
+      <item itemvalue="CMake Application.run_tests" />
+      <item itemvalue="CMake Application.sensor_msgs_generate_messages_cpp" />
+      <item itemvalue="CMake Application.sensor_msgs_generate_messages_eus" />
+      <item itemvalue="CMake Application.sensor_msgs_generate_messages_lisp" />
+      <item itemvalue="CMake Application.sensor_msgs_generate_messages_nodejs" />
+      <item itemvalue="CMake Application.sensor_msgs_generate_messages_py" />
+      <item itemvalue="CMake Application.somatic_msgs_generate_messages_cpp" />
+      <item itemvalue="CMake Application.somatic_msgs_generate_messages_eus" />
+      <item itemvalue="CMake Application.somatic_msgs_generate_messages_java" />
+      <item itemvalue="CMake Application.somatic_msgs_generate_messages_lisp" />
+      <item itemvalue="CMake Application.somatic_msgs_generate_messages_nodejs" />
+      <item itemvalue="CMake Application.somatic_msgs_generate_messages_py" />
+      <item itemvalue="CMake Application.std_msgs_generate_messages_cpp" />
+      <item itemvalue="CMake Application.std_msgs_generate_messages_eus" />
+      <item itemvalue="CMake Application.std_msgs_generate_messages_lisp" />
+      <item itemvalue="CMake Application.std_msgs_generate_messages_nodejs" />
+      <item itemvalue="CMake Application.std_msgs_generate_messages_py" />
+      <item itemvalue="CMake Application.testAuboAPI" />
+      <item itemvalue="CMake Application.testIO" />
+      <item itemvalue="CMake Application.tests" />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -321,30 +415,6 @@
   <component name="TimeTrackingManager">
     <option name="totallyTimeSpent" value="1082000" />
   </component>
-  <component name="ToolWindowManager">
-    <frame x="1985" y="-4" width="1855" height="1084" extended-state="6" />
-    <editor active="true" />
-    <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.2498618" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" weight="0.48623854" />
-      <window_info anchor="bottom" id="Database Changes" order="8" />
-      <window_info anchor="bottom" id="Terminal" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Database" order="3" />
-    </layout>
-  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
@@ -354,20 +424,7 @@
         <entry key="MAIN">
           <value>
             <State>
-              <option name="RECENTLY_FILTERED_USER_GROUPS">
-                <collection />
-              </option>
-              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
-                <collection />
-              </option>
-              <option name="COLUMN_ORDER">
-                <list>
-                  <option value="0" />
-                  <option value="1" />
-                  <option value="2" />
-                  <option value="3" />
-                </list>
-              </option>
+              <option name="COLUMN_ORDER" />
             </State>
           </value>
         </entry>
@@ -389,40 +446,10 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="." />
-    <option name="LAST_COMMIT_MESSAGE" value="." />
-  </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/aubo_driver/src/aubo_driver.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3750">
-          <caret line="288" column="5" selection-start-line="288" selection-start-column="5" selection-end-line="288" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/aubo_driver/include/aubo_driver/aubo_driver.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1740">
-          <caret line="116" column="34" selection-start-line="116" selection-start-column="34" selection-end-line="116" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/aubo_controller/script/aubo_controller/aubo_robot_simulator">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-120">
-          <caret line="127" selection-start-line="127" selection-end-line="127" />
-          <folding>
-            <element signature="e#1631#1643#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/aubo_i5_moveit_config/launch/ros_controllers.launch">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
+    <MESSAGE value="save" />
+    <option name="LAST_COMMIT_MESSAGE" value="save" />
   </component>
 </project>

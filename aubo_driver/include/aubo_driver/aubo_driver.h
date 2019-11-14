@@ -104,6 +104,8 @@ namespace aubo_driver
             bool getFK(aubo_msgs::GetFKRequest& req, aubo_msgs::GetFKResponse& resp);
             bool getIK(aubo_msgs::GetIKRequest& req, aubo_msgs::GetIKResponse& resp);
 
+            void collisionCallback(const aubo_robot_namespace::RobotEventInfo *eventInfo);
+
             const int UPDATE_RATE_ = 400;
             const int TIMER_SPAN_ = 50;
             const double THRESHHOLD = 0.000001;
@@ -138,6 +140,8 @@ namespace aubo_driver
             ros::Subscriber robot_control_subs_;
             ros::Publisher io_pub_;
 
+
+
         private:
             void moveItPosCallback(const trajectory_msgs::JointTrajectoryPoint::ConstPtr &msg);
             void trajectoryExecutionCallback(const std_msgs::String::ConstPtr &msg);
@@ -150,6 +154,7 @@ namespace aubo_driver
             void controllerSwitchCallback(const std_msgs::Int32::ConstPtr &msg);
             void publishIOMsg();
             void TurnOnPower();
+
 
             void testCallback(const std_msgs::Bool::ConstPtr &msg);
             void launchCallback(const std_msgs::Bool::ConstPtr &msg);
@@ -192,9 +197,7 @@ namespace aubo_driver
 
             double last_joint_pos[6];
             double max_joint_pos[6];
-            ros::Time max_time[6];
-            ros::Time prevTime_;
-            int pointcount_ = 0;
+            bool collision_test_ = false;
     };
 }
 

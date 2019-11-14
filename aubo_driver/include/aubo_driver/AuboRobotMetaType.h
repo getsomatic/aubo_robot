@@ -863,59 +863,59 @@ typedef enum
  * 务必注册接收事件的回调函数。
  */
 typedef enum{
-    RobotEvent_armCanbusError,           //机械臂CAN总线错误
-    RobotEvent_remoteHalt,               //远程关机　　　　TODO
-    RobotEvent_remoteEmergencyStop,      //机械臂远程急停
-    RobotEvent_jointError,               //关节错误
+    RobotEvent_armCanbusError,           //0 机械臂CAN总线错误
+    RobotEvent_remoteHalt,               //1 远程关机　　　　TODO
+    RobotEvent_remoteEmergencyStop,      //2 机械臂远程急停
+    RobotEvent_jointError,               //3 关节错误
 
-    RobotEvent_forceControl,             //力控制
-    RobotEvent_exitForceControl,         //退出力控制
+    RobotEvent_forceControl,             //4 力控制
+    RobotEvent_exitForceControl,         //5 退出力控制
 
-    RobotEvent_softEmergency,            //软急停
-    RobotEvent_exitSoftEmergency,        //退出软急停
+    RobotEvent_softEmergency,            //6 软急停
+    RobotEvent_exitSoftEmergency,        //7 退出软急停
 
-    RobotEvent_collision,                //碰撞
-    RobotEvent_collisionStatusChanged,   //碰撞状态改变
-    RobotEvent_tcpParametersSucc,        //工具动力学参数设置成功
-    RobotEvent_powerChanged,             //机械臂电源开关状态改变
-    RobotEvent_ArmPowerOff,              //机械臂电源关闭
-    RobotEvent_mountingPoseChanged,      //安装位置发生改变
-    RobotEvent_encoderError,             //编码器错误
+    RobotEvent_collision,                //8 碰撞
+    RobotEvent_collisionStatusChanged,   //9 碰撞状态改变
+    RobotEvent_tcpParametersSucc,        //10 工具动力学参数设置成功
+    RobotEvent_powerChanged,             //11 机械臂电源开关状态改变
+    RobotEvent_ArmPowerOff,              //12 机械臂电源关闭
+    RobotEvent_mountingPoseChanged,      //13 安装位置发生改变
+    RobotEvent_encoderError,             //14 编码器错误
 
-    RobotEvent_encoderLinesError,        //编码器线数不一致
-    RobotEvent_singularityOverspeed,     //奇异点超速
-    RobotEvent_currentAlarm,             //机械臂电流异常
-    RobotEvent_toolioError,             //机械臂工具端错误
-    RobotEvent_robotStartupPhase,       //机械臂启动阶段
-    RobotEvent_robotStartupDoneResult,  //机械臂启动完成结果
-    RobotEvent_robotShutdownDone,       //机械臂关机结果
-    RobotEvent_atTrackTargetPos,        //机械臂轨迹运动到位信号通知
+    RobotEvent_encoderLinesError,        //15 编码器线数不一致
+    RobotEvent_singularityOverspeed,     //16 奇异点超速
+    RobotEvent_currentAlarm,             //17 机械臂电流异常
+    RobotEvent_toolioError,               //18 机械臂工具端错误
+    RobotEvent_robotStartupPhase,           //19 机械臂启动阶段
+    RobotEvent_robotStartupDoneResult,      //20 机械臂启动完成结果
+    RobotEvent_robotShutdownDone,           //21 机械臂关机结果
+    RobotEvent_atTrackTargetPos,            //22 机械臂轨迹运动到位信号通知
 
-    RobotSetPowerOnDone,                //设置电源状态完成
-    RobotReleaseBrakeDone,              //机械臂刹车释放完成
-    RobotEvent_robotControllerStateChaned,  //机械臂控制状态改变
-    RobotEvent_robotControllerError,        //机械臂控制错误----一般是算法规划出现问题时返回
-    RobotEvent_socketDisconnected,          //socket断开连接
+    RobotSetPowerOnDone,                    //23 设置电源状态完成
+    RobotReleaseBrakeDone,                  //24 机械臂刹车释放完成
+    RobotEvent_robotControllerStateChaned,  //25 机械臂控制状态改变
+    RobotEvent_robotControllerError,        //26 机械臂控制错误----一般是算法规划出现问题时返回
+    RobotEvent_socketDisconnected,          //27 socket断开连接
 
-    RobotEvent_robotControlException,
-    RobotEvent_trackPlayInterrupte,
+    RobotEvent_robotControlException,       //28
+    RobotEvent_trackPlayInterrupte,         //29
 
-    RobotEvent_staticCollisionStatusChanged,
-    RobotEvent_MountingPoseWarning,
+    RobotEvent_staticCollisionStatusChanged, //30
+    RobotEvent_MountingPoseWarning,          //31
 
-    RobotEvent_MacDataInterruptWarning,
-    RobotEvent_ToolIoError,
-    RobotEvent_InterfacBoardSafeIoEvent,
+    RobotEvent_MacDataInterruptWarning,      //32
+    RobotEvent_ToolIoError,                  //33
+    RobotEvent_InterfacBoardSafeIoEvent,     //34
 
-    RobotEvent_RobotHandShakeSucc,
-    RobotEvent_RobotHandShakeFailed,
+    RobotEvent_RobotHandShakeSucc,           //35
+    RobotEvent_RobotHandShakeFailed,         //36
 
-    RobotEvent_RobotErrorInfoNotify,
+    RobotEvent_RobotErrorInfoNotify,         //37
 
-    RobotEvent_InterfacBoardDIChanged,
-    RobotEvent_InterfacBoardDOChanged,
-    RobotEvent_InterfacBoardAIChanged,
-    RobotEvent_InterfacBoardAOChanged,
+    RobotEvent_InterfacBoardDIChanged,       //38
+    RobotEvent_InterfacBoardDOChanged,      //39
+    RobotEvent_InterfacBoardAIChanged,       //40
+    RobotEvent_InterfacBoardAOChanged,      //41
 
     RobotEvent_UpdateJoint6Rot360Flag,
 
