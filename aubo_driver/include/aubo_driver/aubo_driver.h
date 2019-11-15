@@ -104,7 +104,7 @@ namespace aubo_driver
             bool getFK(aubo_msgs::GetFKRequest& req, aubo_msgs::GetFKResponse& resp);
             bool getIK(aubo_msgs::GetIKRequest& req, aubo_msgs::GetIKResponse& resp);
 
-            void collisionCallback(const aubo_robot_namespace::RobotEventInfo *eventInfo);
+            void libRobotEventCallback(const aubo_robot_namespace::RobotEventInfo *eventInfo);
 
             const int UPDATE_RATE_ = 400;
             const int TIMER_SPAN_ = 50;
@@ -199,6 +199,10 @@ namespace aubo_driver
             double last_joint_pos[6];
             double max_joint_pos[6];
             bool collision_test_ = false;
+            bool collision_detected_ = false;
+            ros::Time last_collision_time_;
+
+            void recover();
     };
 }
 

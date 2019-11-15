@@ -38,13 +38,13 @@ namespace aubo_driver {
 
 void robotEventCallback (const aubo_robot_namespace::RobotEventInfo *eventInfo, void *arg) {
     auto *ad = static_cast<AuboDriver *>(arg);
-    ad->collisionCallback(eventInfo);
+    ad->libRobotEventCallback(eventInfo);
 }
 
 std::string AuboDriver::joint_name_[ARM_DOF] = {"shoulder_joint","upperArm_joint","foreArm_joint","wrist1_joint","wrist2_joint","wrist3_joint"};
 
 AuboDriver::AuboDriver(int num = 0):buffer_size_(400),io_flag_delay_(0.02),data_recieved_(false),data_count_(0),real_robot_exist_(false),emergency_stopped_(false),protective_stopped_(false),normal_stopped_(false),
-    controller_connected_flag_(false),start_move_(false),control_mode_ (aubo_driver::SendTargetGoal),rib_buffer_size_(0),jti(ARM_DOF,1.0/200),jto(ARM_DOF),collision_class_(6)
+    controller_connected_flag_(false),start_move_(false),control_mode_ (aubo_driver::SendTargetGoal),rib_buffer_size_(0),jti(ARM_DOF,1.0/200),jto(ARM_DOF),collision_class_(10)
 {
     axis_number_ = 6 + num;
     /** initialize the parameters **/
@@ -164,6 +164,10 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
     {
         /** maintain the ros-controller states from the ros environment **/
         setCurrentPosition(target_point_);      //return back immediately
+    }
+
+    if (collision_detected_ && (ros::Time::now() - last_collision_time_).toSec() > 3.0) {
+        recover();
     }
 
     /*if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) {
@@ -925,38 +929,42 @@ void AuboDriver::launchCallback(const std_msgs::Bool::ConstPtr &msg) {
     TurnOnPower();
 }
 
-void AuboDriver::collisionCallback(const aubo_robot_namespace::RobotEventInfo *eventInfo) {
-    //ROS_ERROR("Colision event callback!");
-    if (eventInfo->eventType != 37 && eventInfo->eventType != 38 && eventInfo->eventType != 39){
+void AuboDriver::libRobotEventCallback(const aubo_robot_namespace::RobotEventInfo *eventInfo) {
+    if (eventInfo->eventType != 37 && eventInfo->eventType != 38 && eventInfo->eventType != 39) {
         ROS_ERROR("Event code=%d, Info=%s, type=%d", eventInfo->eventCode, eventInfo->eventContent.c_str(), eventInfo->eventType);
+        if (collision_test_ && eventInfo->eventType == aubo_robot_namespace::RobotEventType::RobotEvent_collision){
+            collision_detected_ = true;
+            last_collision_time_ = ros::Time::now();
+            ROS_ERROR("COLLISION = %d", collision_detected_);
+        }
     }
+}
 
-    if (collision_test_ && eventInfo->eventType == aubo_robot_namespace::RobotEventType::RobotEvent_collision){
-        ROS_ERROR("Starting collision Recovery!");
+void AuboDriver::recover() {
+    ros::Duration(2.0).sleep();
+   ROS_ERROR("Starting collision Recovery!");
+/*    /// clear python buffer
+    std_msgs::UInt8 msg;
+    msg.data = 1;
+    cancle_trajectory_pub_.publish(msg);
 
-        ros::Duration(1.0).sleep();
+    /// clear local buffer
+    ROS_ERROR("BUFFER SIZX=%ld", buf_queue_.size());
+    while(!buf_queue_.empty())
+        buf_queue_.pop();
 
-        /// clear python buffer
-        std_msgs::UInt8 msg;
-        msg.data = 1;
-        cancle_trajectory_pub_.publish(msg);
+    /// clear robot buffer
+    robot_send_service_.robotServiceClearGlobalWayPointVector();
+    ROS_ERROR("BUFFER SIZE=%ld", buf_queue_.size());
 
-        /// clear local buffer
-        while(!buf_queue_.empty())
-            buf_queue_.pop();
-
-        /// clear robot buffer
-        robot_send_service_.robotServiceClearGlobalWayPointVector();
-        ROS_ERROR("BUFFER SIZE=%ld", buf_queue_.size());
-
-        /// Recovery signal
-        aubo_robot_namespace::RobotMoveControlCommand cmd = aubo_robot_namespace::RobotMoveControlCommand::RobotMoveStop;
-        robot_send_service_.rootServiceRobotMoveControl(cmd);
-        robot_send_service_.robotMoveFastStop();
-        robot_send_service_.robotServiceCollisionRecover();
-
-        ROS_ERROR("Recovered From collision!");
-    }
+    /// Recovery signal
+    aubo_robot_namespace::RobotMoveControlCommand cmd = aubo_robot_namespace::RobotMoveControlCommand::RobotMoveStop;
+    robot_send_service_.rootServiceRobotMoveControl(cmd);*/
+    robot_send_service_.robotServiceCollisionRecover();
+    collision_detected_ = false;
+/*    int collision_grade = -1;
+    robot_receive_service_.robotServiceGetRobotCollisionCurrentService(collision_grade);
+    ROS_ERROR("Recovered From collision! [frage = %d] [colrec = %d]", collision_grade, col_rec);*/
 }
 
 
