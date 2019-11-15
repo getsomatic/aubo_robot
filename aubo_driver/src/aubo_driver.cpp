@@ -99,10 +99,9 @@ AuboDriver::AuboDriver(int num = 0):buffer_size_(400),io_flag_delay_(0.02),data_
     moveAPI_subs_ = nh_.subscribe("moveAPI_cmd", 10, &AuboDriver::AuboAPICallback, this);
     controller_switch_sub_ = nh_.subscribe("/aubo_driver/controller_switch", 10, &AuboDriver::controllerSwitchCallback, this);
 
-    /// Registering Callbacks
+    /// Registering robot event callback
     RobotEventCallback cb = robotEventCallback;
     robot_receive_service_.robotServiceRegisterRobotEventInfoCallback(cb, this);
-    ROS_ERROR("Callback registered");
 }
 
 AuboDriver::~AuboDriver()
@@ -928,17 +927,34 @@ void AuboDriver::launchCallback(const std_msgs::Bool::ConstPtr &msg) {
 
 void AuboDriver::collisionCallback(const aubo_robot_namespace::RobotEventInfo *eventInfo) {
     //ROS_ERROR("Colision event callback!");
-    ROS_ERROR("Event code=%d, Info=%s, type=%d", eventInfo->eventCode, eventInfo->eventContent.c_str(), eventInfo->eventType);
+    if (eventInfo->eventType != 37 && eventInfo->eventType != 38 && eventInfo->eventType != 39){
+        ROS_ERROR("Event code=%d, Info=%s, type=%d", eventInfo->eventCode, eventInfo->eventContent.c_str(), eventInfo->eventType);
+    }
+
     if (collision_test_ && eventInfo->eventType == aubo_robot_namespace::RobotEventType::RobotEvent_collision){
         ROS_ERROR("Starting collision Recovery!");
+
         ros::Duration(1.0).sleep();
+
+        /// clear python buffer
+        std_msgs::UInt8 msg;
+        msg.data = 1;
+        cancle_trajectory_pub_.publish(msg);
+
+        /// clear local buffer
         while(!buf_queue_.empty())
             buf_queue_.pop();
-        robot_send_service_.robotServiceClearGlobalWayPointVector();
-        robot_send_service_.robotServiceOfflineTrackWaypointClear();
 
+        /// clear robot buffer
+        robot_send_service_.robotServiceClearGlobalWayPointVector();
+        ROS_ERROR("BUFFER SIZE=%ld", buf_queue_.size());
+
+        /// Recovery signal
+        aubo_robot_namespace::RobotMoveControlCommand cmd = aubo_robot_namespace::RobotMoveControlCommand::RobotMoveStop;
+        robot_send_service_.rootServiceRobotMoveControl(cmd);
+        robot_send_service_.robotMoveFastStop();
         robot_send_service_.robotServiceCollisionRecover();
-        robot_receive_service_.robotServiceSetRobotCollisionClass(collision_class_);
+
         ROS_ERROR("Recovered From collision!");
     }
 }

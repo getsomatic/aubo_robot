@@ -129,6 +129,7 @@ namespace aubo_driver
             ros::Publisher robot_status_pub_;
 
             ros::Publisher somatic_error_pub_;
+            ros::Publisher somatic_cancel_pub_;
             ros::Subscriber somatic_collision_sub_;
             ros::Subscriber somatic_test_sub_;
             ros::Subscriber somatic_launch_sub_;

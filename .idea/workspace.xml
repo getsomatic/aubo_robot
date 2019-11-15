@@ -5,9 +5,9 @@
       <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_lisp" />
       <config projectName="aubo_driver" targetName="std_msgs_generate_messages_cpp" />
       <config projectName="aubo_driver" targetName="roscpp_generate_messages_eus" />
-      <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_py" />
       <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_nodejs" />
       <config projectName="aubo_driver" targetName="std_msgs_generate_messages_lisp" />
+      <config projectName="aubo_driver" targetName="testIO" />
       <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_eus" />
       <config projectName="aubo_driver" targetName="clean_test_results" />
       <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_nodejs" />
@@ -18,31 +18,31 @@
       <config projectName="aubo_driver" targetName="std_msgs_generate_messages_nodejs" />
       <config projectName="aubo_driver" targetName="doxygen" />
       <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_lisp" />
-      <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_nodejs" />
+      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_py" />
       <config projectName="aubo_driver" targetName="roscpp_generate_messages_cpp" />
       <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_nodejs" />
       <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_eus" />
       <config projectName="aubo_driver" targetName="run_tests" />
       <config projectName="aubo_driver" targetName="tests" />
       <config projectName="aubo_driver" targetName="roscpp_generate_messages_nodejs" />
-      <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_py" />
       <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_eus" />
       <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_py" />
       <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_java" />
       <config projectName="aubo_driver" targetName="download_extra_data" />
       <config projectName="aubo_driver" targetName="aubo_driver" />
+      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_eus" />
       <config projectName="aubo_driver" targetName="roscpp_generate_messages_lisp" />
       <config projectName="aubo_driver" targetName="std_msgs_generate_messages_eus" />
-      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_py" />
+      <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_py" />
       <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_cpp" />
       <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_cpp" />
       <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_java" />
-      <config projectName="aubo_driver" targetName="testIO" />
+      <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_nodejs" />
       <config projectName="aubo_driver" targetName="rosgraph_msgs_generate_messages_cpp" />
-      <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_lisp" />
+      <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_py" />
       <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_eus" />
       <config projectName="aubo_driver" targetName="geometry_msgs_generate_messages_lisp" />
-      <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_eus" />
+      <config projectName="aubo_driver" targetName="sensor_msgs_generate_messages_lisp" />
       <config projectName="aubo_driver" targetName="aubo_msgs_generate_messages_lisp" />
       <config projectName="aubo_driver" targetName="somatic_msgs_generate_messages_py" />
       <config projectName="aubo_driver" targetName="aubo_gazebo_driver" />
@@ -59,7 +59,6 @@
     <list default="true" id="11bd57c4-68ec-4077-b133-5d05c5f9aecd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aubo_controller/script/aubo_controller/aubo_robot_simulator" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_controller/script/aubo_controller/aubo_robot_simulator" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/AuboRobotMetaType.h" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/AuboRobotMetaType.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/aubo_driver.h" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/aubo_driver.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aubo_driver/src/aubo_driver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/src/aubo_driver.cpp" afterDir="false" />
     </list>
@@ -450,6 +449,7 @@
     <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="." />
     <MESSAGE value="save" />
-    <option name="LAST_COMMIT_MESSAGE" value="save" />
+    <MESSAGE value="added even callback" />
+    <option name="LAST_COMMIT_MESSAGE" value="added even callback" />
   </component>
 </project>

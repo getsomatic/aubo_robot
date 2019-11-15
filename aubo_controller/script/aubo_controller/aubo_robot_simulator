@@ -129,7 +129,10 @@ class MotionControllerSimulator():
     # The function will recieve info about cancel trajectory because user want the robot stop when the robot running
     def Is_cancel_trajectory_callback(self, msg_in):
         self.cancle_trajectory = msg_in.data
-        rospy.loginfo('is cancel trajectory status %d' , self.cancle_trajectory)
+        with self.lock:
+            while not self.motion_buffer.empty():
+                self.motion_buffer.get()
+        rospy.loginfo('is cancel trajectory status %d [buffer size = %d]', self.cancle_trajectory, self.motion_buffer.qsize())
 
 
     def add_motion_waypoint(self, point):
