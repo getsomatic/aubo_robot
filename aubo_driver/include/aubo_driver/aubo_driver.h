@@ -187,7 +187,6 @@ namespace aubo_driver
             /// Somatic-ROS communication
             ros::Publisher somatic_error_pub_;
             ros::Publisher somatic_measure_pub_;
-            ros::Subscriber somatic_collision_sub_;
             ros::Subscriber somatic_test_sub_;
             ros::Subscriber somatic_launch_sub_;
 

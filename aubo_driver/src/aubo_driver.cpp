@@ -96,7 +96,6 @@ AuboDriver::AuboDriver(int num):buffer_size_(400),io_flag_delay_(0.02),data_reci
     somatic_error_pub_ = nh_.advertise<somatic_msgs::ArmError>("somatic/robot_cleaner/arm_error", 100);
     somatic_measure_pub_ = nh_.advertise<std_msgs::Bool>("/somatic/floor/measure", 10);
 
-    somatic_collision_sub_ = nh_.subscribe("/somatic/collision_recovery", 10, &AuboDriver::collisionRecoveryCallback, this);
     somatic_launch_sub_ = nh_.subscribe("/somatic/launch", 10, &AuboDriver::launchCallback, this);
     somatic_test_sub_ = nh_.subscribe("/somatic/test", 10, &AuboDriver::testCallback, this);
 
@@ -171,15 +170,10 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
         CollisionRecovery();
     }
 
-    /*if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) {
-        robot_send_service_.robotServiceClearGlobalWayPointVector();
-        while(!buf_queue_.empty())
-            buf_queue_.pop();
-        aubo_robot_namespace::RobotControlCommand rc = aubo_robot_namespace::RobotControlCommand::ClearSingularityOverSpeedAlarm;
-        robot_send_service_.rootServiceRobotControl(rc);
-        ROS_ERROR("Cleared singularity");
+    if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) {
+        SingularityOverspeedRecovery();
         rs.robot_diagnosis_info_.singularityOverSpeedAlarm = false;
-    }*/
+    }
 
     {
         somatic_msgs::ArmError armError;
