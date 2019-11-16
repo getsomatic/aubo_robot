@@ -88,7 +88,7 @@ namespace aubo_driver
     class AuboDriver
     {
         public:
-            AuboDriver(int num);
+            AuboDriver(int num = 0);
             ~AuboDriver();
             bool roadPointCompare(double *point1, double *point2);
 
@@ -122,17 +122,10 @@ namespace aubo_driver
 //            std::thread* mb_publish_thread_;
 
             std::queue<PlanningState>  buf_queue_;
-            aubo_msgs::JointPos cur_pos;
             ros::Publisher joint_states_pub_;
             ros::Publisher joint_feedback_pub_;
             ros::Publisher joint_target_pub_;
             ros::Publisher robot_status_pub_;
-
-            ros::Publisher somatic_error_pub_;
-            ros::Publisher somatic_cancel_pub_;
-            ros::Subscriber somatic_collision_sub_;
-            ros::Subscriber somatic_test_sub_;
-            ros::Subscriber somatic_launch_sub_;
 
             ros::Subscriber teach_subs_;
             ros::Subscriber moveAPI_subs_;
@@ -150,15 +143,10 @@ namespace aubo_driver
             void AuboAPICallback(const std_msgs::Float32MultiArray::ConstPtr &msg);
             void teachCallback(const std_msgs::Float32MultiArray::ConstPtr &msg);
             void timerCallback(const ros::TimerEvent& e);
-            void collisionRecoveryCallback(const std_msgs::Bool::ConstPtr &msg);
             bool setRobotJointsByMoveIt();
             void controllerSwitchCallback(const std_msgs::Int32::ConstPtr &msg);
             void publishIOMsg();
-            void TurnOnPower();
 
-
-            void testCallback(const std_msgs::Bool::ConstPtr &msg);
-            void launchCallback(const std_msgs::Bool::ConstPtr &msg);
 
             bool reverse_connected_;
             double last_recieve_point_[ARM_DOF];   /** To avoid joining the same waypoint to the queue **/
@@ -196,13 +184,26 @@ namespace aubo_driver
             std_msgs::Int32MultiArray rib_status_;
             industrial_msgs::RobotStatus robot_status_;
 
-            double last_joint_pos[6];
-            double max_joint_pos[6];
+            /// Somatic-ROS communication
+            ros::Publisher somatic_error_pub_;
+            ros::Publisher somatic_measure_pub_;
+            ros::Subscriber somatic_collision_sub_;
+            ros::Subscriber somatic_test_sub_;
+            ros::Subscriber somatic_launch_sub_;
+
+            /// Somatic fields
             bool collision_test_ = false;
             bool collision_detected_ = false;
             ros::Time last_collision_time_;
 
-            void recover();
+            /// Somatic methods
+            void CollisionRecovery();
+            void SingularityOverspeedRecovery();
+            void TurnOnPower();
+
+            /// Somatic Callback methods
+            void testCallback(const std_msgs::Bool::ConstPtr &msg);
+            void launchCallback(const std_msgs::Bool::ConstPtr &msg);
     };
 }
 

@@ -43,15 +43,13 @@ void robotEventCallback (const aubo_robot_namespace::RobotEventInfo *eventInfo, 
 
 std::string AuboDriver::joint_name_[ARM_DOF] = {"shoulder_joint","upperArm_joint","foreArm_joint","wrist1_joint","wrist2_joint","wrist3_joint"};
 
-AuboDriver::AuboDriver(int num = 0):buffer_size_(400),io_flag_delay_(0.02),data_recieved_(false),data_count_(0),real_robot_exist_(false),emergency_stopped_(false),protective_stopped_(false),normal_stopped_(false),
+AuboDriver::AuboDriver(int num):buffer_size_(400),io_flag_delay_(0.02),data_recieved_(false),data_count_(0),real_robot_exist_(false),emergency_stopped_(false),protective_stopped_(false),normal_stopped_(false),
     controller_connected_flag_(false),start_move_(false),control_mode_ (aubo_driver::SendTargetGoal),rib_buffer_size_(0),jti(ARM_DOF,1.0/200),jto(ARM_DOF),collision_class_(10)
 {
     axis_number_ = 6 + num;
     /** initialize the parameters **/
     for(int i = 0; i < axis_number_; i++)
     {
-        max_joint_pos[i] = 0.0;
-        last_joint_pos[i] = 0.0;
         current_joints_[i] = 0;
         target_point_[i] = 0;
         if(i < 3)
@@ -78,7 +76,7 @@ AuboDriver::AuboDriver(int num = 0):buffer_size_(400),io_flag_delay_(0.02),data_
     joint_feedback_pub_ = nh_.advertise<control_msgs::FollowJointTrajectoryFeedback>("feedback_states", 100);
     joint_target_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/aubo_driver/real_pose", 50);
     robot_status_pub_ = nh_.advertise<industrial_msgs::RobotStatus>("robot_status", 100);
-    somatic_error_pub_ = nh_.advertise<somatic_msgs::ArmError>("somatic/robot_cleaner/arm_error", 100);
+
     io_pub_ = nh_.advertise<aubo_msgs::IOState>("/aubo_driver/io_states", 10);
     rib_pub_ = nh_.advertise<std_msgs::Int32MultiArray>("/aubo_driver/rib_status", 100);
     cancle_trajectory_pub_ = nh_.advertise<std_msgs::UInt8>("aubo_driver/cancel_trajectory",100);
@@ -88,16 +86,19 @@ AuboDriver::AuboDriver(int num = 0):buffer_size_(400),io_flag_delay_(0.02),data_
 
     /** subscribe topics **/
     trajectory_execution_subs_ = nh_.subscribe("trajectory_execution_event", 10, &AuboDriver::trajectoryExecutionCallback,this);
-
-    somatic_collision_sub_ = nh_.subscribe("/somatic/collision_recovery", 10, &AuboDriver::collisionRecoveryCallback, this);
-    somatic_launch_sub_ = nh_.subscribe("/somatic/launch", 10, &AuboDriver::launchCallback, this);
-    somatic_test_sub_ = nh_.subscribe("/somatic/test", 10, &AuboDriver::testCallback, this);
-
     robot_control_subs_ = nh_.subscribe("robot_control", 10, &AuboDriver::robotControlCallback,this);
     moveit_controller_subs_ = nh_.subscribe("moveItController_cmd", 2000, &AuboDriver::moveItPosCallback,this);
     teach_subs_ = nh_.subscribe("teach_cmd", 10, &AuboDriver::teachCallback,this);
     moveAPI_subs_ = nh_.subscribe("moveAPI_cmd", 10, &AuboDriver::AuboAPICallback, this);
     controller_switch_sub_ = nh_.subscribe("/aubo_driver/controller_switch", 10, &AuboDriver::controllerSwitchCallback, this);
+
+    /// Somatic Pub/Sub
+    somatic_error_pub_ = nh_.advertise<somatic_msgs::ArmError>("somatic/robot_cleaner/arm_error", 100);
+    somatic_measure_pub_ = nh_.advertise<std_msgs::Bool>("/somatic/floor/measure", 10);
+
+    somatic_collision_sub_ = nh_.subscribe("/somatic/collision_recovery", 10, &AuboDriver::collisionRecoveryCallback, this);
+    somatic_launch_sub_ = nh_.subscribe("/somatic/launch", 10, &AuboDriver::launchCallback, this);
+    somatic_test_sub_ = nh_.subscribe("/somatic/test", 10, &AuboDriver::testCallback, this);
 
     /// Registering robot event callback
     RobotEventCallback cb = robotEventCallback;
@@ -166,8 +167,8 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
         setCurrentPosition(target_point_);      //return back immediately
     }
 
-    if (collision_detected_ && (ros::Time::now() - last_collision_time_).toSec() > 3.0) {
-        recover();
+    if (collision_test_ && collision_detected_ && (ros::Time::now() - last_collision_time_).toSec() > 3.0) {
+        CollisionRecovery();
     }
 
     /*if (rs.robot_diagnosis_info_.singularityOverSpeedAlarm) {
@@ -470,20 +471,16 @@ void AuboDriver::trajectoryExecutionCallback(const std_msgs::String::ConstPtr &m
 
 void AuboDriver::robotControlCallback(const std_msgs::String::ConstPtr &msg)
 {
+    /// topic "/robot_control"
+
     if(msg->data == "powerOn")
-    {
         TurnOnPower();
-    }
 
-    if(msg->data == "SingularityRec") {
-        while(!buf_queue_.empty())
-            buf_queue_.pop();
-        robot_send_service_.robotServiceClearGlobalWayPointVector();
+    if(msg->data == "SingularityRec")
+        SingularityOverspeedRecovery();
 
-        aubo_robot_namespace::RobotControlCommand rc = aubo_robot_namespace::RobotControlCommand::ClearSingularityOverSpeedAlarm;
-        robot_send_service_.rootServiceRobotControl(rc);
-        TurnOnPower();
-    }
+    if(msg->data == "CollisionRec")
+        CollisionRecovery();
 }
 
 void AuboDriver::updateControlStatus()
@@ -889,12 +886,6 @@ bool AuboDriver::getIK(aubo_msgs::GetIKRequest& req, aubo_msgs::GetIKResponse& r
     resp.joint.push_back(wayPoint.jointpos[5]);
 }
 
-void AuboDriver::collisionRecoveryCallback(const std_msgs::Bool::ConstPtr &msg) {
-    robot_send_service_.robotServiceCollisionRecover();
-    robot_receive_service_.robotServiceSetRobotCollisionClass(collision_class_);
-    ROS_ERROR("Recovering From collision!");
-}
-
 void AuboDriver::TurnOnPower() {
     int ret = aubo_robot_namespace::InterfaceCallSuccCode;
     aubo_robot_namespace::ToolDynamicsParam toolDynamicsParam;
@@ -940,10 +931,9 @@ void AuboDriver::libRobotEventCallback(const aubo_robot_namespace::RobotEventInf
     }
 }
 
-void AuboDriver::recover() {
-    ros::Duration(2.0).sleep();
+void AuboDriver::CollisionRecovery() {
    ROS_ERROR("Starting collision Recovery!");
-/*    /// clear python buffer
+    /// clear python buffer
     std_msgs::UInt8 msg;
     msg.data = 1;
     cancle_trajectory_pub_.publish(msg);
@@ -958,13 +948,32 @@ void AuboDriver::recover() {
     ROS_ERROR("BUFFER SIZE=%ld", buf_queue_.size());
 
     /// Recovery signal
-    aubo_robot_namespace::RobotMoveControlCommand cmd = aubo_robot_namespace::RobotMoveControlCommand::RobotMoveStop;
-    robot_send_service_.rootServiceRobotMoveControl(cmd);*/
-    robot_send_service_.robotServiceCollisionRecover();
+    aubo_robot_namespace::RobotControlCommand cmd = aubo_robot_namespace::RobotControlCommand::ClearSingularityOverSpeedAlarm;
+    robot_send_service_.rootServiceRobotControl(cmd);
+    if (collision_test_)
+    {
+        collision_test_ = false;
+        std_msgs::Bool msg;
+        msg.data = true;
+        somatic_measure_pub_.publish(msg);
+    }
     collision_detected_ = false;
+    robot_send_service_.robotServiceCollisionRecover();
+    robot_receive_service_.robotServiceGetRobotDiagnosisInfo(rs.robot_diagnosis_info_);
+    ROS_ERROR("Recovered From collision! [%d, %d, %d, %d]", rs.robot_diagnosis_info_.macTargetPosDataSize, rs.robot_diagnosis_info_.forceControlMode, rs.robot_diagnosis_info_.robotCollision, rs.robot_diagnosis_info_.armCanbusStatus);
 /*    int collision_grade = -1;
     robot_receive_service_.robotServiceGetRobotCollisionCurrentService(collision_grade);
     ROS_ERROR("Recovered From collision! [frage = %d] [colrec = %d]", collision_grade, col_rec);*/
+}
+
+void AuboDriver::SingularityOverspeedRecovery() {
+    while(!buf_queue_.empty())
+        buf_queue_.pop();
+    robot_send_service_.robotServiceClearGlobalWayPointVector();
+
+    aubo_robot_namespace::RobotControlCommand rc = aubo_robot_namespace::RobotControlCommand::ClearSingularityOverSpeedAlarm;
+    robot_send_service_.rootServiceRobotControl(rc);
+    TurnOnPower();
 }
 
 
