@@ -187,6 +187,7 @@ namespace aubo_driver
             /// Somatic-ROS communication
             ros::Publisher somatic_error_pub_;
             ros::Publisher somatic_measure_pub_;
+            ros::Publisher somatic_robot_event_pub_;
             ros::Subscriber somatic_test_sub_;
             ros::Subscriber somatic_launch_sub_;
 
@@ -203,6 +204,8 @@ namespace aubo_driver
             /// Somatic Callback methods
             void testCallback(const std_msgs::Bool::ConstPtr &msg);
             void launchCallback(const std_msgs::Bool::ConstPtr &msg);
+            void PublishEvent(std::string event);
+            void SetCollisionClass(int coll = 10);
     };
 }
 

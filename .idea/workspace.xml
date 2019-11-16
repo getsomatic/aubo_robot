@@ -58,6 +58,7 @@
   <component name="ChangeListManager">
     <list default="true" id="11bd57c4-68ec-4077-b133-5d05c5f9aecd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/aubo_driver.h" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/include/aubo_driver/aubo_driver.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aubo_driver/src/aubo_driver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/aubo_driver/src/aubo_driver.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -450,6 +451,7 @@
     <MESSAGE value="added even callback" />
     <MESSAGE value="fixed collision recovery" />
     <MESSAGE value="refactored features" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored features" />
+    <MESSAGE value="hotfix" />
+    <option name="LAST_COMMIT_MESSAGE" value="hotfix" />
   </component>
 </project>
