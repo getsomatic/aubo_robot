@@ -200,6 +200,7 @@ namespace aubo_driver
             void CollisionRecovery();
             void SingularityOverspeedRecovery();
             void TurnOnPower();
+            void ForceControl(bool enable);
 
             /// Somatic Callback methods
             void testCallback(const std_msgs::Bool::ConstPtr &msg);

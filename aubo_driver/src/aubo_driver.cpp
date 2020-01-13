@@ -485,6 +485,12 @@ void AuboDriver::robotControlCallback(const std_msgs::String::ConstPtr &msg)
 
     if(msg->data == "CollisionClass1")
         SetCollisionClass(1);
+
+    if(msg->data == "ForceEnable")
+        ForceControl(true);
+
+    if(msg->data == "ForceDisable")
+        ForceControl(false);
 }
 
 void AuboDriver::updateControlStatus()
@@ -991,6 +997,14 @@ void AuboDriver::SetCollisionClass(int coll) {
     collision_class_ = coll;
     robot_send_service_.robotServiceSetRobotCollisionClass(collision_class_);
     ROS_ERROR("CollisionClass = %d", collision_class_);
+}
+
+void AuboDriver::ForceControl(bool enable) {
+    using aubo_robot_namespace::RobotControlCommand;
+    aubo_robot_namespace::RobotControlCommand rc = enable ? RobotControlCommand::EnableForceControl : RobotControlCommand::DisableForceControl;
+    robot_send_service_.rootServiceRobotControl(rc);
+    std::string ev = enable?"True":"False";
+    PublishEvent("Force Control Set to " + ev);
 }
 
 }
