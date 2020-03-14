@@ -146,6 +146,9 @@ namespace aubo_driver
             bool setRobotJointsByMoveIt();
             void controllerSwitchCallback(const std_msgs::Int32::ConstPtr &msg);
             void publishIOMsg();
+            void Pause();
+            void Unpause();
+            void Stop(const std_msgs::Bool::ConstPtr &msg);
 
 
             bool reverse_connected_;
@@ -190,6 +193,7 @@ namespace aubo_driver
             ros::Publisher somatic_robot_event_pub_;
             ros::Subscriber somatic_test_sub_;
             ros::Subscriber somatic_launch_sub_;
+            ros::Subscriber somatic_stop_sub_;
 
             /// Somatic fields
             bool collision_test_ = false;
@@ -207,6 +211,8 @@ namespace aubo_driver
             void launchCallback(const std_msgs::Bool::ConstPtr &msg);
             void PublishEvent(std::string event);
             void SetCollisionClass(int coll = 10);
+
+            bool pause_ = false;
     };
 }
 

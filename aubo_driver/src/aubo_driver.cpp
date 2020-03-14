@@ -99,6 +99,7 @@ AuboDriver::AuboDriver(int num):buffer_size_(400),io_flag_delay_(0.02),data_reci
 
     somatic_launch_sub_ = nh_.subscribe("/somatic/launch", 10, &AuboDriver::launchCallback, this);
     somatic_test_sub_ = nh_.subscribe("/somatic/test", 10, &AuboDriver::testCallback, this);
+    somatic_stop_sub_ = nh_.subscribe("/somatic/robot_cleaner/arm/stop", 10, &AuboDriver::Stop, this);
 
     /// Registering robot event callback
     RobotEventCallback cb = robotEventCallback;
@@ -364,7 +365,9 @@ bool AuboDriver::setRobotJointsByMoveIt()
             }
             else
             {
-                ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
+                if (!pause_){
+                    ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
+                }
             }
 #ifdef LOG_INFO_DEBUG
             //            struct timeb tb;
@@ -491,6 +494,14 @@ void AuboDriver::robotControlCallback(const std_msgs::String::ConstPtr &msg)
 
     if(msg->data == "ForceDisable")
         ForceControl(false);
+
+    if(msg->data == "pause"){
+        Pause();
+    }
+
+    if(msg->data == "unpause"){
+        Unpause();
+    }
 }
 
 void AuboDriver::updateControlStatus()
@@ -896,6 +907,8 @@ bool AuboDriver::getIK(aubo_msgs::GetIKRequest& req, aubo_msgs::GetIKResponse& r
     resp.joint.push_back(wayPoint.jointpos[5]);
 }
 
+/// Somatic Methods
+
 void AuboDriver::TurnOnPower() {
     int ret = aubo_robot_namespace::InterfaceCallSuccCode;
     aubo_robot_namespace::ToolDynamicsParam toolDynamicsParam;
@@ -1005,6 +1018,21 @@ void AuboDriver::ForceControl(bool enable) {
     robot_send_service_.rootServiceRobotControl(rc);
     std::string ev = enable?"True":"False";
     PublishEvent("Force Control Set to " + ev);
+}
+
+void AuboDriver::Pause() {
+    ROS_ERROR("PAUSE");
+    pause_ = true;
+}
+
+void AuboDriver::Unpause() {
+    ROS_ERROR("UNPAUSE");
+    pause_ = false;
+}
+
+void AuboDriver::Stop(const std_msgs::Bool::ConstPtr &msg) {
+    ROS_ERROR("Stop");
+    normal_stopped_ = true;
 }
 
 }
