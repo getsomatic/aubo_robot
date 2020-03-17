@@ -502,6 +502,10 @@ void AuboDriver::robotControlCallback(const std_msgs::String::ConstPtr &msg)
     if(msg->data == "unpause"){
         Unpause();
     }
+
+    if(msg->data == "stop"){
+        normal_stopped_ = true;
+    }
 }
 
 void AuboDriver::updateControlStatus()
